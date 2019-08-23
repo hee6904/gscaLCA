@@ -1,11 +1,15 @@
 Package: gscaLCA
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Generalized Structure Compement Analysis- Latent Class Analysis 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Jihoon Ryoo, Seohee Park, Seoungeun Kim, Heungsun Hwang. 
+Maintainer: Seohee Park <seohee-park@uiowa.edu>
+Description: This package allows to execute Latent Class Analysis by using Generalized Structure Component Analaysis(GSCA).
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
+Depends: gridExtra, ggplot2, stringr, progress, psych, fastDummies, fclust, MASS,devtools, doSNOW, doParallel
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
