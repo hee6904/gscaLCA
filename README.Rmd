@@ -1,0 +1,49 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# gscaLCA
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of gscaLCA is to execute Latent Class Analysis by using Generalized Structure Component Analaysis(GSCA).
+
+## Installation
+
+<!-- You can install the released version of gscaLCA from [CRAN](https://CRAN.R-project.org) with: -->
+
+<!-- ``` r -->
+<!-- install.packages("gscaLCA") -->
+<!-- ``` -->
+
+And the development version from [GitHub](https://github.com/) with:hee6904/gscaLCA
+
+``` r
+# install.packages("devtools")
+devtools::install_github("hee6904/gscaLCA")
+```
+## Example
+
+This is a basic example.
+
+```{r example}
+library(gscaLCA)
+## basic example code
+```
+
+Running gscaLCA AddHealth data. The number of cluster is 2 and the number of bootstrap is 20. 
+```{r AddHealth}
+R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2)
+```
+
