@@ -1,3 +1,34 @@
+#' @title Main function of LCA by using fuzzy clustering GSCA
+#'
+#' @description This function enables to run LCA based on GSCA algorithm.
+#'
+#' @usage gscaLCA(dat, varnames, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
+#'
+#' @param dat Data that you want to implement GSCA.
+#' @param varnames A character vector. The names of columns to be used for gscaLCA.
+#' @param ID.var  A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find a ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.
+#' @param num.cluster A numeric element. Number of cluster to be analyzed. The default is 2.
+#' @param num.factor Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assumes to share one latent variable. The default is "EACH".
+#' @param Boot.num   Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.
+#'
+#' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
+#'
+#'
+#' @export
+#'
+#' @examples
+#' # AddHealth data with 2 clusters
+#' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2)
+#' R2$model.fit      # Model fit
+#' R2$LCprevalence   # Latent Class Prevalence
+#' R2$RespProb       # Item Reponse Probability
+#' R2$membership     # Membership for all observations
+#'
+#' # TALIS data with 3 clusters
+#' T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3)
+#'
+#' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
+#'
 gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=NULL, num.factor="EACH", Boot.num=20)
 {
 
