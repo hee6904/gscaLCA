@@ -26,7 +26,7 @@
 #'
 #' @details The Teaching and Learning International Survey (TALIS) 2018 focusing on teachers, school leaders, and the learning environment in schools was conducted by the Organization for Economic Cooperation and Development (OECD). There have been three cycles, TALIS 2008, TALIS 2013, and TALIS 2018. In this study, we utilize publicly available TALIS 2018 U.S. Data, 2,560 teachers’ responses. We focused on five items: two items are on motivation, two items are on pedagogy, and the last item is on satisfaction. Items’ responses are originally four ordered categorical data. Due to too samll frequencies, We modified them into three ordered categories.
 #'
-TALIS <- read.csv("data/TALIS_JSS1.csv")[,c(1,3:4,6:8)]
+TALIS <- read.csv("data/TALIS.csv")[,c(1,3:4,6:8)]
 
 colnames(TALIS)[1] = c("IDTEACH")
 colnames(TALIS)[2:6] = c("Mtv_1","Mtv_2",

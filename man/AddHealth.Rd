@@ -6,7 +6,7 @@
 \title{Add Health data about substance use and abuse}
 \format{A data frame with 5114 observations on the following 6 variables.
 \describe{
-  \item{ID}{a numeric vector of observations' ID.}
+  \item{AID}{a numeric vector of observations' ID.}
   \item{Smoking}{a factor with levels "Yes" or "No"; H4TO1: Have you ever smoked an entire cigarette? }
   \item{Alcohol}{a factor with levels "Yes" or "No"; H4TO33: Have you had a drink of beer, wine, or liquor more than two or three times? Do not include sips or tastes from someone else’s drink.}
   \item{Drug}{a factor with levels "Yes" or "No"; H4TO65E: Have you every used any of the following drugs? (65E) Other types of illegal drugs, such as LSD, PCP, ecstasy, heroin, or mushrooms; or inhalants. }

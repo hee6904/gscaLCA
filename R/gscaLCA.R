@@ -2,7 +2,7 @@
 #'
 #' @description This function enables to run LCA based on GSCA algorithm.
 #'
-#' @usage gscaLCA(dat, varnames, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
+#' @usage gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
 #'
 #' @param dat Data that you want to implement GSCA.
 #' @param varnames A character vector. The names of columns to be used for gscaLCA.
@@ -13,7 +13,7 @@
 #'
 #' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
-#'
+#' @import parallel
 #' @export
 #'
 #' @examples
@@ -29,7 +29,7 @@
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
-gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=NULL, num.factor="EACH", Boot.num=20)
+gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
 {
 
   dat.origin = dat

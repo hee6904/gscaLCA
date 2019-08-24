@@ -11,10 +11,9 @@ Installation
 ------------
 
 <!-- You can install the released version of gscaLCA from [CRAN](https://CRAN.R-project.org) with: -->
-``` r
-install.packages("gscaLCA")
-```
-
+<!-- ``` r -->
+<!-- install.packages("gscaLCA") -->
+<!-- ``` -->
 And the development version from [GitHub](https://github.com/) with:hee6904/gscaLCA
 
 ``` r
@@ -83,43 +82,43 @@ R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2)
 #>  NCE      :  0.7504 
 #>  
 #> Estimated Latent Class Prevalnces (%) -------------------
-#>  55.09% 44.91% 
+#>  44.91% 55.09% 
 #>  
 #> Conditional item response probability -------------------
 #>  $Smoking
 #>            Class Category Estimate
-#> 1 Latent Class 1      Yes   0.3956
-#> 2 Latent Class 1       No   0.6044
-#> 3 Latent Class 2      Yes   0.9653
-#> 4 Latent Class 2       No   0.0347
+#> 1 Latent Class 1      Yes   0.9653
+#> 2 Latent Class 1       No   0.0347
+#> 3 Latent Class 2      Yes   0.3956
+#> 4 Latent Class 2       No   0.6044
 #> 
 #> $Alcohol
 #>            Class Category Estimate
-#> 1 Latent Class 1      Yes   0.6686
-#> 2 Latent Class 1       No   0.3314
-#> 3 Latent Class 2      Yes   0.9684
-#> 4 Latent Class 2       No   0.0316
+#> 1 Latent Class 1      Yes   0.9684
+#> 2 Latent Class 1       No   0.0316
+#> 3 Latent Class 2      Yes   0.6686
+#> 4 Latent Class 2       No   0.3314
 #> 
 #> $Drug
 #>            Class Category Estimate
-#> 1 Latent Class 1      Yes   0.0262
-#> 2 Latent Class 1       No   0.9738
-#> 3 Latent Class 2      Yes   0.4497
-#> 4 Latent Class 2       No   0.5503
+#> 1 Latent Class 1      Yes   0.4497
+#> 2 Latent Class 1       No   0.5503
+#> 3 Latent Class 2      Yes   0.0262
+#> 4 Latent Class 2       No   0.9738
 #> 
 #> $Marijuana
 #>            Class Category Estimate
-#> 1 Latent Class 1      Yes   0.1985
-#> 2 Latent Class 1       No   0.8015
-#> 3 Latent Class 2      Yes   0.9754
-#> 4 Latent Class 2       No   0.0246
+#> 1 Latent Class 1      Yes   0.9754
+#> 2 Latent Class 1       No   0.0246
+#> 3 Latent Class 2      Yes   0.1985
+#> 4 Latent Class 2       No   0.8015
 #> 
 #> $Cocaine
 #>            Class Category Estimate
-#> 1 Latent Class 1      Yes   0.0254
-#> 2 Latent Class 1       No   0.9746
-#> 3 Latent Class 2      Yes   0.3956
-#> 4 Latent Class 2       No   0.6044
+#> 1 Latent Class 1      Yes   0.3956
+#> 2 Latent Class 1       No   0.6044
+#> 3 Latent Class 2      Yes   0.0254
+#> 4 Latent Class 2       No   0.9746
 ```
 
 <img src="man/figures/README-AddHealth-1.png" width="100%" />
