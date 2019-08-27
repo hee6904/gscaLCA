@@ -3,7 +3,7 @@ Type: Package
 Title: Generalized Structure Compement Analysis- Latent Class Analysis 
 Version: 0.1.2
 Author: Jihoon Ryoo, Seohee Park, Seoungeun Kim, Heungsun Hwang. 
-Maintainer: Seohee Park <seohee-park@uiowa.edu>
+Maintainer: Seohee Park <hee6904@gmail.com>
 Description: 
     This package allows to execute Latent Class Analysis by using 
     Generalized Structure Component Analaysis(GSCA). It estimates the parameters 
