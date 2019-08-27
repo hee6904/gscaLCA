@@ -1,0 +1,9 @@
+\documentclass{article}
+\usepackage{pdfpages}
+% \VignetteIndexEntry{gscaLCA}
+
+\begin{document}
+
+\includepdf[pages=-, fitpaper=true]{gscaLCA_JSSsubmission.pdf}
+
+\end{document}
