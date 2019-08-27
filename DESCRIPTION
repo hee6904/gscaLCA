@@ -1,7 +1,7 @@
 Package: gscaLCA
 Type: Package
 Title: Generalized Structure Compement Analysis- Latent Class Analysis 
-Version: 0.1.0
+Version: 0.1.2
 Author: Jihoon Ryoo, Seohee Park, Seoungeun Kim, Heungsun Hwang. 
 Maintainer: Seohee Park <seohee-park@uiowa.edu>
 Description: 
