@@ -3,6 +3,7 @@
 % \VignetteIndexEntry{gscaLCA}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \includepdf[pages=-, fitpaper=true]{gscaLCA_JSSsubmission.pdf}
 

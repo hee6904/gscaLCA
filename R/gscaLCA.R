@@ -16,6 +16,7 @@
 #' @import parallel
 #' @export
 #'
+#'
 #' @examples
 #' # AddHealth data with 2 clusters
 #' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2)
