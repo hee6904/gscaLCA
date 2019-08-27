@@ -1,6 +1,6 @@
 Package: gscaLCA
 Type: Package
-Title: Generalized Structure Compement Analysis- Latent Class Analysis 
+Title: Generalized Structure Component Analysis- Latent Class Analysis 
 Version: 0.1.2
 Author: Jihoon Ryoo, Seohee Park, Seoungeun Kim, Heungsun Hwang. 
 Maintainer: Seohee Park <hee6904@gmail.com>
@@ -17,5 +17,4 @@ Suggests:
     knitr,
     rmarkdown,
     R.rsp
-VignetteBuilder: knitr, R.rsp
 RoxygenNote: 6.1.1.9000
