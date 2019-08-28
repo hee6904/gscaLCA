@@ -33,14 +33,14 @@
 #'
 #' @examples
 #' # AddHealth data with 2 clusters
-#' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2)
+#' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 #' R2$model.fit      # Model fit
 #' R2$LCprevalence   # Latent Class Prevalence
 #' R2$RespProb       # Item Reponse Probability
 #' R2$membership     # Membership for all observations
 #'
 #' # TALIS data with 3 clusters
-#' T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3)
+#' T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
@@ -182,7 +182,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
   EST = EST_ft(T0, nzt, vect0, ID, LEVELs, loadtype,
-               MS, Z, z0, c, nobs, nvar, ntv, nlv, nzct, const,V, W, W0, T,vb, alpha)
+               MS, z0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha)
   model.fit.1    = EST$model.fit.1
   LCprevalence.1 = EST$LCprevalence.1
   RespProb.1     = EST$RespProb.1
@@ -235,7 +235,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
      BOOT.result <-
        foreach(i=1:Boot.num, .options.snow = opts) %dopar% Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                                                                   MS, Z, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const,V, W, W0, T,vb, alpha)
+                                                                   MS, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha)
 
      stopCluster(cl)
 
@@ -254,7 +254,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
        bz0 = Boot.Gen(z0)
 
        BOOT.result = Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                   MS, Z, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,V, W, W0, T,vb, alpha)
+                   MS, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha)
 
 
        model.fit[[b]] =  BOOT.result$model.fit.b

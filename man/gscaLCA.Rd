@@ -30,14 +30,14 @@ This function enables to run LCA based on GSCA algorithm.
 }
 \examples{
 # AddHealth data with 2 clusters
-R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2)
+R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 R2$model.fit      # Model fit
 R2$LCprevalence   # Latent Class Prevalence
 R2$RespProb       # Item Reponse Probability
 R2$membership     # Membership for all observations
 
 # TALIS data with 3 clusters
-T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3)
+T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 
 }
 \references{

@@ -1,4 +1,4 @@
-al_gscaLCA = function(MS,Z,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T,vb,alpha){
+al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T,vb,alpha){
   ## MS=1 (mean structure); MS=0 (no mean structure)
   if (MS == 1){
     Z <- bz0
