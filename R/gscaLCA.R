@@ -2,7 +2,7 @@
 #'
 #' @description This function enables to run LCA based on GSCA algorithm.
 #'
-#' @usage gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
+#' @usage gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20, multiple.Core = FALSE)
 #'
 #' @param dat Data that you want to implement GSCA.
 #' @param varnames A character vector. The names of columns to be used for gscaLCA.
@@ -10,13 +10,14 @@
 #' @param num.cluster A numeric element. Number of cluster to be analyzed. The default is 2.
 #' @param num.factor Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assumes to share one latent variable. The default is "EACH".
 #' @param Boot.num   Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.
+#' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap. The default is FASLE.
 #'
 #' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
 #' @import parallel
+#' @import doSNOW
 #' @import devtools
 #' @import doParallel
-#' @import doSNOW
 #' @import ggplot2
 #' @import gridExtra
 #' @import progress
@@ -26,6 +27,7 @@
 #' @importFrom stringr str_extract
 #' @importFrom fastDummies dummy_cols
 #' @importFrom fclust FKM
+#' @importFrom stats complete.cases quantile runif sd
 #'
 #'
 #' @export
@@ -44,7 +46,8 @@
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
-gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
+gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
+                    num.factor="EACH", Boot.num=20, multiple.Core = FALSE)
 {
 
   dat.origin = dat
@@ -189,57 +192,84 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="
 
 
   if (Boot.num > 0){
-
     Boot.Gen = function(z0){
       z0[sample(1:nrow(z0),replace = TRUE),]
     }
 
 
-   BZ0 = foreach(i=1:Boot.num) %do% Boot.Gen(z0)
+
+   if(isTRUE(multiple.Core)){
+
+     BZ0 = foreach(i=1:Boot.num) %do% Boot.Gen(z0)
+
+     chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+
+     if (nzchar(chk) && chk == "TRUE") {
+       # use 2 cores in CRAN/Travis/AppVeyor
+       numCores <- 2L
+     } else {
+       # use all cores in devtools::test()
+       numCores <- parallel::detectCores()
+     }
 
 
-   chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
 
-   if (nzchar(chk) && chk == "TRUE") {
-     # use 2 cores in CRAN/Travis/AppVeyor
-     numCores <- 2L
-   } else {
-     # use all cores in devtools::test()
-     numCores <- parallel::detectCores()
+     cl <- makeCluster(numCores)
+     registerDoSNOW(cl)
+
+
+     pb <- progress_bar$new(
+       #format = "letter = :letter [:bar] :elapsed | eta: :eta",
+       total = Boot.num,    # 100
+       width = 60)
+
+     progress_letter <- rep(LETTERS[1:10], 10)  # token reported in progress bar
+
+     # allowing progress bar to be used in foreach -----------------------------
+     progress <- function(n){
+       pb$tick(tokens = list(letter = progress_letter[n]))
+     }
+
+     opts <- list(progress = progress)
+
+     # foreach loop ------------------------------------------------------------
+
+
+     BOOT.result <-
+       foreach(i=1:Boot.num, .options.snow = opts) %dopar% Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
+                                                                   MS, Z, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const,V, W, W0, T,vb, alpha)
+
+     stopCluster(cl)
+
+     model.fit = lapply(BOOT.result, function(x){x[["model.fit.b"]]})
+     RespProb = lapply(BOOT.result, function(x){x[["RespProb.b"]]})
+     LCprevalence = lapply(BOOT.result, function(x){x[["LCprevalence.b"]]})
+
+   }else{
+     model.fit =list()
+     RespProb=list()
+     LCprevalence= list()
+
+    # pb <- progress_bar$new(total = (Boot.num))
+     for (b in 1: Boot.num)
+     {
+       bz0 = Boot.Gen(z0)
+
+       BOOT.result = Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
+                   MS, Z, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,V, W, W0, T,vb, alpha)
+
+
+       model.fit[[b]] =  BOOT.result$model.fit.b
+       RespProb[[b]] = BOOT.result$RespProb.b
+       LCprevalence[[b]] = BOOT.result$LCprevalence.b
+
+       # pb$tick()
+       # Sys.sleep(1 /(Boot.num) )
+
+     }
+
    }
 
-
-
-    cl <- makeCluster(numCores)
-    registerDoSNOW(cl)
-
-
-    pb <- progress_bar$new(
-      #format = "letter = :letter [:bar] :elapsed | eta: :eta",
-      total = Boot.num,    # 100
-      width = 60)
-
-    progress_letter <- rep(LETTERS[1:10], 10)  # token reported in progress bar
-
-    # allowing progress bar to be used in foreach -----------------------------
-    progress <- function(n){
-      pb$tick(tokens = list(letter = progress_letter[n]))
-    }
-
-    opts <- list(progress = progress)
-
-    # foreach loop ------------------------------------------------------------
-
-
-    BOOT.result <-
-      foreach(i=1:Boot.num, .options.snow = opts) %dopar% Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                                                                  MS, Z, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const,V, W, W0, T,vb, alpha)
-
-    stopCluster(cl)
-
-    model.fit = lapply(BOOT.result, function(x){x[["model.fit.b"]]})
-    RespProb = lapply(BOOT.result, function(x){x[["RespProb.b"]]})
-    LCprevalence = lapply(BOOT.result, function(x){x[["LCprevalence.b"]]})
   }else{
 
     model.fit= list()
@@ -247,7 +277,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="
     RespProb= list()
     model.fit[[1]]= model.fit.1
     LCprevalence[[1]]= LCprevalence.1
-      RespProb[[1]]= RespProb.1
+    RespProb[[1]]= RespProb.1
   }
 
 
@@ -266,8 +296,8 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="
 
   model.fit.result <- cbind(model.fit.1,
                             apply(model.fit.mat, 2, sd),
-                            apply(model.fit.mat, 2, function(x){quantile(x, probs=0.025)}),
-                            apply(model.fit.mat, 2, function(x){quantile(x, probs=0.975)}))
+                            apply(model.fit.mat, 2, function(x){stats::quantile(x, probs=0.025)}),
+                            apply(model.fit.mat, 2, function(x){stats::quantile(x, probs=0.975)}))
 
   colnames(model.fit.result) <- c("Estimate", "SE", "95CI.lower", "95CI.upper")
 
@@ -282,8 +312,8 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="
 
   LCprevalence.result <- cbind(LCprevalence.1 ,
                                apply(LCprevalence.mat, 2, sd),
-                               apply(LCprevalence.mat, 2, function(x){quantile(x, probs=0.025)}),
-                               apply(LCprevalence.mat, 2, function(x){quantile(x, probs=0.975)}))
+                               apply(LCprevalence.mat, 2, function(x){stats::quantile(x, probs=0.025)}),
+                               apply(LCprevalence.mat, 2, function(x){stats::quantile(x, probs=0.975)}))
 
   colnames(LCprevalence.result) <- c("Percent", "Count","SE",  "95.CI.lower", "95.CI.upper")
 
@@ -309,8 +339,8 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="
 
 
   tem.resprob <-  cbind(apply(RespProb.mat, 2, sd),
-                        apply(RespProb.mat, 2, function(x){quantile(x, probs=0.025)}),
-                        apply(RespProb.mat, 2, function(x){quantile(x, probs=0.975)}))
+                        apply(RespProb.mat, 2, function(x){stats::quantile(x, probs=0.025)}),
+                        apply(RespProb.mat, 2, function(x){stats::quantile(x, probs=0.975)}))
   colnames(tem.resprob) <-c("SE",  "95.CI.lower", "95.CI.upper")
 
   nrow.mat = unlist(lapply(RespProb.results, nrow))

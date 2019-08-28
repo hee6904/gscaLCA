@@ -4,7 +4,7 @@
 \alias{gscaLCA}
 \title{Main function of LCA by using fuzzy clustering GSCA}
 \usage{
-gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20)
+gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20, multiple.Core = FALSE)
 }
 \arguments{
 \item{dat}{Data that you want to implement GSCA.}
@@ -18,6 +18,8 @@ gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.
 \item{num.factor}{Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assumes to share one latent variable. The default is "EACH".}
 
 \item{Boot.num}{Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.}
+
+\item{multiple.Core}{A logical element. TRUE enables to use multiple cores for the bootstrap. The default is FASLE.}
 }
 \value{
 A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
