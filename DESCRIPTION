@@ -5,10 +5,9 @@ Version: 0.1.2
 Author: Jihoon Ryoo, Seohee Park, Seoungeun Kim, Heungsun Hwang. 
 Maintainer: Seohee Park <hee6904@gmail.com>
 Description: 
-    This package allows to execute Latent Class Analysis by using 
-    Generalized Structure Component Analaysis(GSCA). It estimates the parameters 
-    of latent class prevalence and item response probability in LCA with a single 
-    line comment. It also provide graphs of item response probability. 
+    Execute Latent Class Analysis by using Generalized Structure Component Analysis(GSCA). 
+    It estimates the parameters of latent class prevalence and item response probability in LCA 
+    with a single line comment. It also provide graphs of item response probabilities. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

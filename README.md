@@ -10,10 +10,10 @@ The goal of gscaLCA is to execute Latent Class Analysis by using Generalized Str
 Installation
 ------------
 
-<!-- You can install the released version of gscaLCA from [CRAN](https://CRAN.R-project.org) with: -->
-<!-- ``` r -->
-<!-- install.packages("gscaLCA") -->
-<!-- ``` -->
+You can install the released version of gscaLCA from [CRAN](https://CRAN.R-project.org) with: 
+``` r 
+install.packages("gscaLCA") 
+``` 
 And the development version from [GitHub](https://github.com/) with:hee6904/gscaLCA
 
 ``` r

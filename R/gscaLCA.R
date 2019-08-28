@@ -14,6 +14,20 @@
 #' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
 #' @import parallel
+#' @import devtools
+#' @import doParallel
+#' @import doSNOW
+#' @import ggplot2
+#' @import gridExtra
+#' @import progress
+#'
+#' @importFrom psych tr
+#' @importFrom MASS ginv
+#' @importFrom stringr str_extract
+#' @importFrom fastDummies dummy_cols
+#' @importFrom fclust FKM
+#'
+#'
 #' @export
 #'
 #'
