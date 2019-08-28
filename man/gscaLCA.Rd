@@ -4,7 +4,8 @@
 \alias{gscaLCA}
 \title{Main function of LCA by using fuzzy clustering GSCA}
 \usage{
-gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20, multiple.Core = FALSE)
+gscaLCA(dat, varnames = NULL, ID.var = NULL, num.cluster = 2,
+  num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE)
 }
 \arguments{
 \item{dat}{Data that you want to implement GSCA.}

@@ -2,8 +2,6 @@
 #'
 #' @description This function enables to run LCA based on GSCA algorithm.
 #'
-#' @usage gscaLCA(dat, varnames=NULL, ID.var=NULL, num.cluster=2, num.factor="EACH", Boot.num=20, multiple.Core = FALSE)
-#'
 #' @param dat Data that you want to implement GSCA.
 #' @param varnames A character vector. The names of columns to be used for gscaLCA.
 #' @param ID.var  A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find a ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.
