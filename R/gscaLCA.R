@@ -13,9 +13,7 @@
 #' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
 #' @import parallel
-#' @import doSNOW
 #' @import devtools
-#' @import doParallel
 #' @import ggplot2
 #' @import gridExtra
 #' @import progress
@@ -26,8 +24,8 @@
 #' @importFrom fastDummies dummy_cols
 #' @importFrom fclust FKM
 #' @importFrom stats complete.cases quantile runif sd
-#'
-#'
+#' @importFrom foreach "%do%" "%dopar%" foreach
+#' @importFrom doSNOW registerDoSNOW
 #' @export
 #'
 #'
@@ -40,7 +38,7 @@
 #' R2$membership     # Membership for all observations
 #'
 #' # TALIS data with 3 clusters
-#' T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
+#' T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
@@ -213,7 +211,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
      cl <- makeCluster(numCores)
-     registerDoSNOW(cl)
+     doSNOW::registerDoSNOW(cl)
 
 
      pb <- progress_bar$new(
@@ -372,7 +370,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
       {
 
         matYes = rbind(matYes,
-                       subset(RespProb.results[[l]],  Category==LEVELs[[l]][j])[,1:3])
+                       subset(RespProb.results[[l]],  RespProb.results[[l]]$Category==LEVELs[[l]][j])[,1:3])
       }
 
       matYes = cbind(rep(varnames, each=sum(LCprevalence.1[,1]!=0)), matYes)
@@ -392,9 +390,9 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
       ## Line plot by using Aggregated Data (with or without error bar)
-      P[[j]]= ggplot(matYes, aes(x= Type , y= Estimate, colour= Class, group=Class)) +
-        geom_line(size=1, aes(linetype=Class)) +
-        geom_point(size=3, aes(shape =Class))+
+      P[[j]]= ggplot(matYes, aes(x= matYes$Type , y= matYes$Estimate, colour= matYes$Class, group=matYes$Class)) +
+        geom_line(size=1, aes(linetype=matYes$Class)) +
+        geom_point(size=3, aes(shape =matYes$Class))+
         theme_light()+
         ylim(0, 1)+
         #ylab("Probability of Yes")+

@@ -37,5 +37,5 @@ if(!("devtools"%in%attr(installed.packages(), "dimnames")[[1]]))
   install.packages("devtools")
 suppressMessages(library(devtools))
 
-use_data(TALIS,  overwrite = T)
+usethis::use_data(TALIS,  overwrite = T)
 

@@ -37,7 +37,7 @@ R2$RespProb       # Item Reponse Probability
 R2$membership     # Membership for all observations
 
 # TALIS data with 3 clusters
-T3 = gscaLCA(TALIS, varnames = names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
+T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 
 }
 \references{
