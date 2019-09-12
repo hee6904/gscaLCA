@@ -29,6 +29,7 @@ A list of the used sample size (N), the number of cluster (C), the number of Boo
 This function enables to run LCA based on GSCA algorithm.
 }
 \examples{
+\dontrun{
 # AddHealth data with 2 clusters
 R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 R2$model.fit      # Model fit
@@ -38,6 +39,8 @@ R2$membership     # Membership for all observations
 
 # TALIS data with 3 clusters
 T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
+
+}
 
 }
 \references{

@@ -25,11 +25,12 @@
 #' @importFrom fclust FKM
 #' @importFrom stats complete.cases quantile runif sd
 #' @importFrom foreach "%do%" "%dopar%" foreach
-#' @importFrom doSNOW registerDoSNOW
+#' @importFrom doParallel registerDoParallel
 #' @export
 #'
 #'
 #' @examples
+#' \dontrun{
 #' # AddHealth data with 2 clusters
 #' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 #' R2$model.fit      # Model fit
@@ -40,6 +41,8 @@
 #' # TALIS data with 3 clusters
 #' T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 #'
+#' }
+#'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
 gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
@@ -48,7 +51,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
   dat.origin = dat
 
-  options(warn=1)
+  #options(warn=1)
 
   ### Input data
 
@@ -211,7 +214,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
      cl <- makeCluster(numCores)
-     doSNOW::registerDoSNOW(cl)
+     doParallel::registerDoParallel(cl)
 
 
      pb <- progress_bar$new(
