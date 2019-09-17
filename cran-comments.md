@@ -10,4 +10,4 @@
 * This is a new release.
 * Win-builder generated 1 NOTE: * possibly misspelled words in DESCRIPTION, but the spelling is correct
 
-
+* The 'doSNOW' package is solely able to show progress bar with multiple core running. 

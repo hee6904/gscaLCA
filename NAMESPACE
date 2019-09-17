@@ -2,12 +2,12 @@
 
 export(gscaLCA)
 import(devtools)
+import(doSNOW)
 import(ggplot2)
 import(gridExtra)
 import(parallel)
 import(progress)
 importFrom(MASS,ginv)
-importFrom(doParallel,registerDoParallel)
 importFrom(fastDummies,dummy_cols)
 importFrom(fclust,FKM)
 importFrom(foreach,"%do%")

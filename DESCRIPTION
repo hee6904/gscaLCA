@@ -1,7 +1,7 @@
 Package: gscaLCA
 Type: Package
 Title: Generalized Structure Component Analysis- Latent Class Analysis 
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
               person("Jihoon", "Ryoo",
                   role = c("aut")),
@@ -19,7 +19,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 2.10)
-Imports: gridExtra, ggplot2, stringr, progress, psych, fastDummies, fclust, MASS, devtools, foreach, doParallel
+Imports: gridExtra, ggplot2, stringr, progress, psych, fastDummies, fclust, MASS, devtools, foreach, doSNOW
 Suggests: 
     knitr,
     rmarkdown,

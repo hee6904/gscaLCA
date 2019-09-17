@@ -17,6 +17,7 @@
 #' @import ggplot2
 #' @import gridExtra
 #' @import progress
+#' @import doSNOW
 #'
 #' @importFrom psych tr
 #' @importFrom MASS ginv
@@ -25,7 +26,6 @@
 #' @importFrom fclust FKM
 #' @importFrom stats complete.cases quantile runif sd
 #' @importFrom foreach "%do%" "%dopar%" foreach
-#' @importFrom doParallel registerDoParallel
 #' @export
 #'
 #'
@@ -214,7 +214,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
      cl <- makeCluster(numCores)
-     doParallel::registerDoParallel(cl)
+      registerDoSNOW(cl)
 
 
      pb <- progress_bar$new(
@@ -249,7 +249,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
      RespProb=list()
      LCprevalence= list()
 
-    # pb <- progress_bar$new(total = (Boot.num))
+    pb <- progress_bar$new(total = (Boot.num))
      for (b in 1: Boot.num)
      {
        bz0 = Boot.Gen(z0)
@@ -262,8 +262,8 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
        RespProb[[b]] = BOOT.result$RespProb.b
        LCprevalence[[b]] = BOOT.result$LCprevalence.b
 
-       # pb$tick()
-       # Sys.sleep(1 /(Boot.num) )
+       pb$tick()
+       Sys.sleep(1 /(Boot.num) )
 
      }
 
