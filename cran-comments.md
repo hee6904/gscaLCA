@@ -7,12 +7,13 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is the second submission after revise.
-* Win-builder generated 1 NOTE: * possibly misspelled words in DESCRIPTION, but the spelling is correct
+* We received feedback on our R package version 0.0.1. After revise, we resubmit it as version 0.0.2
 
-* The 'doSNOW' package cannot substituted with other packages in order to show progress bar with multiple core running. 
+* Win-builder generated 1 NOTE: * possibly misspelled words in DESCRIPTION, but the spelling is correct.
 
-* The examples in this package uses a single core. According to preference by users, multiple core can be used. 
+* The 'doSNOW' package cannot be replaced with other packages in order to show the progress bar with multiple core running. 
 
-* Our program provides information as both forms of an object and printed output in console. 
-We think that printing out the output in the console is really important. It will be convenient for users.
+* The examples in this package use a single core. According to preference by users, multiple cores can be used. 
+
+* This packcage provides both an object of information and printed output in console.
+We think that printing out the output in the console is crucial, and it will be convenient for users.
