@@ -8,7 +8,9 @@
 #' @param num.cluster A numeric element. Number of cluster to be analyzed. The default is 2.
 #' @param num.factor Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assumes to share one latent variable. The default is "EACH".
 #' @param Boot.num   Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.
-#' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap. The default is FASLE.
+#' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap. The default is \code{FASLE}.
+#' @param verbose Logical. It indicates whether \code{gscaLCA} prints output to the console. The default is \code{TRUE}.
+#' @param graphs_print Logical. It indicates whether \code{gscaLCA} prints the graphs. The default is \code{TRUE}.
 #'
 #' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
@@ -30,7 +32,7 @@
 #'
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # AddHealth data with 2 clusters
 #' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 #' R2$model.fit      # Model fit
@@ -41,12 +43,13 @@
 #' # TALIS data with 3 clusters
 #' T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 #'
-#' }
+#'}
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
 gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
-                    num.factor="EACH", Boot.num=20, multiple.Core = FALSE)
+                    num.factor="EACH", Boot.num=20, multiple.Core = FALSE,
+                    verbose=TRUE, graphs_print= TRUE)
 {
 
   dat.origin = dat
@@ -389,10 +392,12 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
         paste0(class.numeric,
                " (",sprintf("%.2f", LCprevalence.result[class.numeric,"Percent"]), "%)") )
 
+      # Class= matYes$Class
 
 
 
       ## Line plot by using Aggregated Data (with or without error bar)
+
       P[[j]]= ggplot(matYes, aes(x= matYes$Type , y= matYes$Estimate, colour= matYes$Class, group=matYes$Class)) +
         geom_line(size=1, aes(linetype=matYes$Class)) +
         geom_point(size=3, aes(shape =matYes$Class))+
@@ -408,9 +413,8 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
           axis.text.x = element_text(size = 15),
           legend.text = element_text(size=15),
           legend.title = element_text(size=15),
-          axis.text.y = element_text(size = 15))
-
-
+          axis.text.y = element_text(size = 15))+
+        labs(color='Class', shape="Class", linetype="Class")
 
       # print(j)
       # print(p)
@@ -427,58 +431,11 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
                   membership = membership.1, plot = P)
 
 
-  cat("=========================================================\n")
-  cat("LCA by using Fuzzing Clusterwise GSCA\n")
-  cat("=========================================================\n")
-  cat(paste("Fit for", c, "latent classes:"), "\n",
-      paste0("number of used observations: ", nrow(z0)),"\n",
-      paste0("number of deleted observation: ", nrow(dat.origin)-nrow(z0)),"\n",
-      paste0("number of bootstrap for SE: ",Boot.num - sum(unlist(lapply(model.fit, function(x){is.null(x)})))),"/",Boot.num, "\n")
-  #     paste0("number of bootstrap for SE: ",Boot.num - (length(model.fit)-1)),"\n")
-
-  cat("\n")
-
-  cat("MODEL FIT -----------------------------------------------\n",
-      "FIT      : ", sprintf("%.4f", model.fit.result[1,"Estimate"]), "\n",
-      "AFIT     : ", sprintf("%.4f", model.fit.result[2,"Estimate"]), "\n",
-      "FPI      : ", sprintf("%.4f", model.fit.result[3,"Estimate"]), "\n",
-      "NCE      : ", sprintf("%.4f", model.fit.result[4,"Estimate"]), "\n", "\n")
-
-  cat("Estimated Latent Class Prevalnces (%) -------------------\n",
-      paste0(sprintf("%.2f", LCprevalence.result[,"Percent"]), "%"), "\n", "\n")
+  if(verbose) print_gscaLCA(c, z0, dat.origin, Boot.num, model.fit, model.fit.result,LCprevalence.result,
+                             RespProb.1)
+  if(graphs_print) print_graph_gscaLCA (Iden.vect, LEVELs, P)
 
 
-  cat("Conditional item response probability -------------------\n ")
-  print(lapply(RespProb.1, function(x) {
-    x[, "Estimate"] <- sprintf("%.4f", x[, "Estimate"])
-    x }))
-
-  if(all(Iden.vect==TRUE)){
-    if(length(LEVELs[[1]])==2){
-      print(P[[1]])
-    }else{
-
-      get_legend<-function(myggplot){
-        tmp <- ggplot_gtable(ggplot_build(myggplot))
-        leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-        legend <- tmp$grobs[[leg]]
-        return(legend)
-      }
-
-      legend <- get_legend(P[[1]]+theme(legend.position="bottom"))
-
-      P.1 =lapply(P, function(x) x + theme(legend.position="none"))
-      P.1[[length(LEVELs[[1]])+1]] =legend
-
-
-      grid.arrange(grobs = P.1, layout_matrix = matrix(
-        c(rep(1:length(LEVELs[[1]]),each=5),
-          length(LEVELs)+1),ncol=1))
-
-
-      #do.call(grid.arrange, c(P.1, nrow= length(LEVELs[[1]])))
-    }
-  }
 
 
 

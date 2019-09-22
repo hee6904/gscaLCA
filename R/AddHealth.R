@@ -27,21 +27,4 @@
 #'
 #' @details This AddHealth data consist of 5,144 participants' responses with a randomly generated ID variable and five item variables, such as Smoking, Alcohol, Other Types of Illegal Drug, Marijuana, and Cocaine. The responses of the five items are dichotomous as either ``Yes'' or ``No'' and are treated the other missing codes as systematic missing. This data can be obtained from the National Longitudinal Study of Adolescent to Adult Health (Add Health; Harris et al., 2009) where the study have mainly focused on the investigation of how health factors in childhood affect adult outcomes. In terms of data collection, there have been four additional waves since 1994. In this package, the data of a specific section of substance use at the wave IV is pre-installed.
 #'
-AddHealth <- read.csv("data/AddHealth.csv")
-
-for (i in 2:6)
-{
-  AddHealth[,i]= ifelse(AddHealth[,i]==1, "Yes",
-                      ifelse(AddHealth[,i]==0, "No",NA))
-
-  AddHealth[,i] = factor(AddHealth[,i], levels = c("Yes", "No"))
-}
-
-rownames(AddHealth) = 1:nrow(AddHealth)
-
-# if(!("devtools"%in%attr(installed.packages(), "dimnames")[[1]]))
-#   install.packages("devtools")
-# suppressMessages(library(devtools))
-
-usethis::use_data(AddHealth,  overwrite = T)
-
+"AddHealth"

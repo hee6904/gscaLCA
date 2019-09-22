@@ -5,13 +5,13 @@ EST_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype,
   # INITIALIZATIONS - RANDOM STARTS
   ######################################################
 
-  ## initial matrix W T V
+  ## initial matrix W T(T.mat) V
   W <-  list()
-  T <- list()
+  T.mat <- list()
   for ( k in 1:c)
   {
     W[[k]]<- matrix(ifelse(as.vector(W0)==99, runif(length(as.vector(W0)==99)),as.vector(W0)), nrow=nrow(W0))
-    T[[k]]<- matrix(ifelse(vect0==99, runif(nzt), vect0), ncol=ncol(T0))
+    T.mat[[k]]<- matrix(ifelse(vect0==99, runif(nzt), vect0), ncol=ncol(T0))
   }
 
   VV <- c()
@@ -40,7 +40,7 @@ EST_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype,
 
   ##############
 
-  AL_gscaLCA = al_gscaLCA(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T,vb,alpha)
+  AL_gscaLCA = al_gscaLCA(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha)
   U = AL_gscaLCA$U
   bi = AL_gscaLCA$bi
   f1 = AL_gscaLCA$f1

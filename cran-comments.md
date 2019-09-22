@@ -7,7 +7,12 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is a new release.
+* This is the second submission after revise.
 * Win-builder generated 1 NOTE: * possibly misspelled words in DESCRIPTION, but the spelling is correct
 
-* The 'doSNOW' package is solely able to show progress bar with multiple core running. 
+* The 'doSNOW' package cannot substituted with other packages in order to show progress bar with multiple core running. 
+
+* The examples in this package uses a single core. According to preference by users, multiple core can be used. 
+
+* Our program provides information as both forms of an object and printed output in console. 
+We think that printing out the output in the console is really important. It will be convenient for users.

@@ -5,7 +5,8 @@
 \title{Main function of LCA by using fuzzy clustering GSCA}
 \usage{
 gscaLCA(dat, varnames = NULL, ID.var = NULL, num.cluster = 2,
-  num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE)
+  num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE,
+  verbose = TRUE, graphs_print = TRUE)
 }
 \arguments{
 \item{dat}{Data that you want to implement GSCA.}
@@ -20,7 +21,11 @@ gscaLCA(dat, varnames = NULL, ID.var = NULL, num.cluster = 2,
 
 \item{Boot.num}{Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.}
 
-\item{multiple.Core}{A logical element. TRUE enables to use multiple cores for the bootstrap. The default is FASLE.}
+\item{multiple.Core}{A logical element. TRUE enables to use multiple cores for the bootstrap. The default is \code{FASLE}.}
+
+\item{verbose}{Logical. It indicates whether \code{gscaLCA} prints output to the console. The default is \code{TRUE}.}
+
+\item{graphs_print}{Logical. It indicates whether \code{gscaLCA} prints the graphs. The default is \code{TRUE}.}
 }
 \value{
 A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
@@ -29,7 +34,7 @@ A list of the used sample size (N), the number of cluster (C), the number of Boo
 This function enables to run LCA based on GSCA algorithm.
 }
 \examples{
-\dontrun{
+\donttest{
 # AddHealth data with 2 clusters
 R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 R2$model.fit      # Model fit

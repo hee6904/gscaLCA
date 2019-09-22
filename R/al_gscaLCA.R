@@ -1,4 +1,4 @@
-al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T,vb,alpha){
+al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha){
   ## MS=1 (mean structure); MS=0 (no mean structure)
   if (MS == 1){
     Z <- bz0
@@ -68,7 +68,7 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
 
         ##### STEP 1: UPDATE T (LOADINGS AND PATH COEFFICIETNS)
 
-        vect0 <- as.numeric(T[[k]])
+        vect0 <- as.numeric(T.mat[[k]])
         vecPsi <- as.numeric(Psi_c)
 
         m0 <- kronecker(diag(ntv), Gamma_c)
@@ -79,7 +79,7 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
         vect <- MASS::ginv(t(m)%*%m)%*%t(m)%*%(vecPsi)
         vect0[nzct] <- vect
 
-        T[[k]]<- matrix(vect0, nrow=nlv, ncol=ntv )
+        T.mat[[k]]<- matrix(vect0, nrow=nlv, ncol=ntv )
 
         ##### STEP 2: UPDATE W (COMPONENT WEIGHTS)
         for(p in 1:nlv)
@@ -89,7 +89,7 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
 
           P <- rep(0, ntv)
           P[nvar+p] <- 1
-          Q <- T[[k]][p, ]
+          Q <- T.mat[[k]][p, ]
           beta <- P-Q
 
           H <- diag(nlv)
@@ -98,7 +98,7 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
           HH <- diag(ntv)
           HH[nvar+p, nvar+p] <-  0
 
-          Delta <- W[[k]] %*% H %*% T[[k]] - V[[k]] %*% HH
+          Delta <- W[[k]] %*% H %*% T.mat[[k]] - V[[k]] %*% HH
           ZDelta <- Z_c%*%Delta
           vecZDel <- as.vector(ZDelta)
 
@@ -125,7 +125,7 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
 
         ##### STEP 3: OPTIMAL SCALING
 
-        VWT <-  V[[k]] - W[[k]]%*%T[[k]]
+        VWT <-  V[[k]] - W[[k]]%*%T.mat[[k]]
         mz0 <- Z_c
 
         for (i in 1:length(vb))
@@ -163,15 +163,15 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
         Psi_c <- Z_c %*% V[[k]]
         Gamma_c <- Z_c %*% W[[k]]
 
-        dif <- Z %*% V[[k]]-  Z%*% W[[k]]%*%T[[k]]  # Z was used in matlab code; Z_c was not work well
-        obj_func <- Psi_c - Gamma_c %*% T[[k]]
+        dif <- Z %*% V[[k]]-  Z%*% W[[k]]%*%T.mat[[k]]  # Z was used in matlab code; Z_c was not work well
+        obj_func <- Psi_c - Gamma_c %*% T.mat[[k]]
 
         f1 <- f1 + psych::tr(t(obj_func)%*%obj_func)
         f2 <- f2 + psych::tr(t(Psi_c)%*%Psi_c)
 
         M <- cbind(M, rowSums(dif^2))
 
-        bi0 <- V[[k]] - W[[k]]%*%T[[k]]
+        bi0 <- V[[k]] - W[[k]]%*%T.mat[[k]]
         bi[,k] <- as.vector(bi0)
         bi[,k] <- bi[,k]/norm( bi[,k], type="2") ## why type 2?
 
