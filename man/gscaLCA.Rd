@@ -34,14 +34,19 @@ A list of the used sample size (N), the number of cluster (C), the number of Boo
 This function enables to run LCA based on GSCA algorithm.
 }
 \examples{
-\donttest{
-# AddHealth data with 2 clusters
-R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
+
+# ddHealth data with 2 clusters with 1000 samples
+AH.sample= AddHealth[1:1000,]
+R2 = gscaLCA(AH.sample, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
+
 R2$model.fit      # Model fit
 R2$LCprevalence   # Latent Class Prevalence
 R2$RespProb       # Item Reponse Probability
 R2$membership     # Membership for all observations
 
+\donttest{
+# AddHealth data with 2 clusters
+R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 # TALIS data with 3 clusters
 T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 

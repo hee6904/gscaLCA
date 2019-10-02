@@ -32,14 +32,19 @@
 #'
 #'
 #' @examples
-#' \donttest{
-#' # AddHealth data with 2 clusters
-#' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
+#'
+#' # ddHealth data with 2 clusters with 1000 samples
+#' AH.sample= AddHealth[1:1000,]
+#' R2 = gscaLCA(AH.sample, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
+#'
 #' R2$model.fit      # Model fit
 #' R2$LCprevalence   # Latent Class Prevalence
 #' R2$RespProb       # Item Reponse Probability
 #' R2$membership     # Membership for all observations
 #'
+#' \donttest{
+#' # AddHealth data with 2 clusters
+#' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 #' # TALIS data with 3 clusters
 #' T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
 #'
@@ -343,7 +348,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
   tem.resprob <-  cbind(apply(RespProb.mat, 2, sd),
                         apply(RespProb.mat, 2, function(x){stats::quantile(x, probs=0.025)}),
                         apply(RespProb.mat, 2, function(x){stats::quantile(x, probs=0.975)}))
-  colnames(tem.resprob) <-c("SE",  "95.CI.lower", "95.CI.upper")
+  colnames(tem.resprob) <- c("SE",  "95.CI.lower", "95.CI.upper")
 
   nrow.mat = unlist(lapply(RespProb.results, nrow))
   for(i in 1:length(varnames))
@@ -361,13 +366,63 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
   for (j in 1:(length(LEVELs)-1))
   {
-    Iden.vect= c(Iden.vect, identical(LEVELs[[j]], LEVELs[[j+1]]))
+    Iden.vect = c(Iden.vect, identical(LEVELs[[j]], LEVELs[[j+1]]))
   }
 
   if(all(Iden.vect!=TRUE)){
     P ="Sorry, We don't provide the plot because the variable does not have the same number of categories."
   }else{
-    P = gscaLCA_graph(LEVELs, RespProb.results, varnames,LCprevalence.result)
+    Mat.YES = list()
+
+    for (j in 1:length(LEVELs[[1]]))
+    {
+      matYes = c()
+      for(l in 1:length(LEVELs))
+      {
+
+        matYes = rbind(matYes,
+                       subset(RespProb.results[[l]],  RespProb.results[[l]]$Category==LEVELs[[l]][j])[,1:3])
+      }
+
+      matYes = cbind(rep(varnames, each=sum(LCprevalence.1[,1]!=0)), matYes)
+      names(matYes)[1] ="Type"
+      matYes$Type = factor(matYes$Type, levels= varnames, labels=varnames)
+
+
+      class.numeric = as.numeric(str_extract(unique(matYes$Class), "\\-*\\d+\\.*\\d*"))
+
+
+      matYes$Class = factor(matYes$Class , unique(matYes$Class),
+                            paste0(class.numeric,
+                                   " (",sprintf("%.2f", LCprevalence.result[class.numeric,"Percent"]), "%)") )
+
+      # Class= matYes$Class
+
+      print(j)
+      Mat.YES[[j]]= matYes
+    }
+
+      ## Line plot by using Aggregated Data (with or without error bar)
+   P = lapply(Mat.YES, function(x){ggplot(x, aes(x= x$Type , y= x$Estimate,
+                                              colour= x$Class, group=x$Class)) +
+        geom_line(size=1, aes(linetype=x$Class)) +
+        geom_point(size=3, aes(shape =x$Class))+
+        theme_light()+
+        ylim(0, 1)+
+        #ylab("Probability of Yes")+
+        ggtitle(paste("Response:", unique(x$Category))) +
+        theme(
+          plot.title = element_text(size = 20),
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          #axis.title.y = element_text(size =13),
+          axis.text.x = element_text(size = 15),
+          legend.text = element_text(size=15),
+          legend.title = element_text(size=15),
+          axis.text.y = element_text(size = 15))+
+        labs(color='Class', shape="Class", linetype="Class")})
+
+
 
   }
 
@@ -385,10 +440,6 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
   if(graphs_print) print_graph_gscaLCA (Iden.vect, LEVELs, P)
 
 
-
-
-
   return(RESULT)
-
 
 }
