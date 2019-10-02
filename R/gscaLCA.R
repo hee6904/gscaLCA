@@ -64,7 +64,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
   # Check whether data is completed or not. If not, use listwise delection was conducted.
   if(sum(complete.cases(dat))!=nrow(dat)){
-    warning('Listwise delection was used. Uncompleted data is not available in the current version')
+    warning('Listwise deletion was used. Uncompleted data is not available in the current version')
     dat = dat[complete.cases(dat[, varnames]),  ]
   }
 
@@ -367,67 +367,16 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
   if(all(Iden.vect!=TRUE)){
     P ="Sorry, We don't provide the plot because the variable does not have the same number of categories."
   }else{
+    P = gscaLCA_graph(LEVELs, RespProb.results, varnames,LCprevalence.result)
 
-    P = list()
-    for (j in 1:length(LEVELs[[1]]))
-    {
-      matYes = c()
-      for(l in 1:length(LEVELs))
-      {
-
-        matYes = rbind(matYes,
-                       subset(RespProb.results[[l]],  RespProb.results[[l]]$Category==LEVELs[[l]][j])[,1:3])
-      }
-
-      matYes = cbind(rep(varnames, each=sum(LCprevalence.1[,1]!=0)), matYes)
-      matYes$Category=NULL
-      names(matYes)[1] ="Type"
-      matYes$Type = factor(matYes$Type, levels= varnames, labels=varnames)
-
-
-      class.numeric = as.numeric(str_extract(unique(matYes$Class), "\\-*\\d+\\.*\\d*"))
-
-
-      matYes$Class = factor(matYes$Class , unique(matYes$Class),
-        paste0(class.numeric,
-               " (",sprintf("%.2f", LCprevalence.result[class.numeric,"Percent"]), "%)") )
-
-      # Class= matYes$Class
-
-
-
-      ## Line plot by using Aggregated Data (with or without error bar)
-
-      P[[j]]= ggplot(matYes, aes(x= matYes$Type , y= matYes$Estimate, colour= matYes$Class, group=matYes$Class)) +
-        geom_line(size=1, aes(linetype=matYes$Class)) +
-        geom_point(size=3, aes(shape =matYes$Class))+
-        theme_light()+
-        ylim(0, 1)+
-        #ylab("Probability of Yes")+
-        ggtitle(paste("Response:", LEVELs[[1]][j])) +
-        theme(
-          plot.title = element_text(size = 20),
-          axis.title.x = element_blank(),
-          axis.title.y = element_blank(),
-          #axis.title.y = element_text(size =13),
-          axis.text.x = element_text(size = 15),
-          legend.text = element_text(size=15),
-          legend.title = element_text(size=15),
-          axis.text.y = element_text(size = 15))+
-        labs(color='Class', shape="Class", linetype="Class")
-
-      # print(j)
-      # print(p)
-    }
   }
-
 
 
   RESULT <- list( N = nrow(z0), C = c,
                   Boot.num.im = Boot.num - sum(unlist(lapply(model.fit, function(x){is.null(x)}))),
                   model.fit = model.fit.result,
                   LCprevalence = LCprevalence.result,
-                  RespProb=RespProb.results,
+                  RespProb = RespProb.results,
                   membership = membership.1, plot = P)
 
 

@@ -17,3 +17,4 @@
 
 * This packcage provides both an object of information and printed output in console.
 We think that printing out the output in the console is crucial, and it will be convenient for users.
+
