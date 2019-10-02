@@ -398,7 +398,6 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
       # Class= matYes$Class
 
-      print(j)
       Mat.YES[[j]]= matYes
     }
 
