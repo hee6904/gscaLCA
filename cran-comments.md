@@ -15,6 +15,7 @@
 
 * The examples in this package use a single core. According to preference by users, multiple cores can be used. 
 
-* This packcage provides both an object of information and printed output in console.
+* This package provides both an object of information and printed output in console.
 We think that printing out the output in the console is crucial, and it will be convenient for users.
 
+* Title has 63 characters. 
