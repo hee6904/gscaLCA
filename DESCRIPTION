@@ -1,6 +1,6 @@
 Package: gscaLCA
 Type: Package
-Title: Generalized Structure Component Analysis- Latent Class Analysis (gscaLCA)
+Title: Generalized Structure Component Analysis- Latent Class Analysis
 Version: 0.0.2
 Authors@R: c(
               person("Jihoon", "Ryoo",
@@ -12,7 +12,7 @@ Authors@R: c(
               person("heungsun", "Hwaung",
                   role = c("aut")))
 Description: 
-    Execute Latent Class Analysis (LCA) by using Generalized Structured Component Analysis(GSCA). This is explained in Ryoo, Park, and Kim (2009) <doi:10.1007/s41237-019-00084-6>.
+    Execute Latent Class Analysis (LCA) by using Generalized Structured Component Analysis (GSCA). This is explained in Ryoo, Park, and Kim (2009) <doi:10.1007/s41237-019-00084-6>.
     It estimates the parameters of latent class prevalence and item response probability in LCA 
     with a single line comment. It also provide graphs of item response probabilities. 
 License: GPL-3
