@@ -33,7 +33,7 @@
 #'
 #' @examples
 #'
-#' # ddHealth data with 2 clusters with 1000 samples
+#' # AddHealth data with 2 clusters with 1000 samples
 #' AH.sample= AddHealth[1:1000,]
 #' R2 = gscaLCA(AH.sample, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
 #'

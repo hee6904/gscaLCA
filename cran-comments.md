@@ -19,3 +19,5 @@
 We think that printing out the output in the console is crucial, and it will be convenient for users.
 
 * Title has 63 characters. 
+
+* 10/09/2019 Typos are corrected. 
