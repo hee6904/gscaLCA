@@ -69,7 +69,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
   # Check whether data is completed or not. If not, use listwise delection was conducted.
   if(sum(complete.cases(dat))!=nrow(dat)){
-    warning('Listwise deletion was used. Uncompleted data is not available in the current version')
+    warning('Listwise deletion was used. Incompleted data is not available in the current version')
     dat = dat[complete.cases(dat[, varnames]),  ]
   }
 
