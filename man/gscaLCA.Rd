@@ -4,51 +4,92 @@
 \alias{gscaLCA}
 \title{Main function of LCA by using fuzzy clustering GSCA}
 \usage{
-gscaLCA(dat, varnames = NULL, ID.var = NULL, num.cluster = 2,
-  num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE,
-  verbose = TRUE, graphs_print = TRUE)
+gscaLCA(
+  dat,
+  varnames = NULL,
+  ID.var = NULL,
+  num.cluster = 2,
+  num.factor = "EACH",
+  Boot.num = 20,
+  multiple.Core = FALSE,
+  covnames = NULL,
+  cov.model = NULL,
+  multinomial.test.ref = "MAX"
+)
 }
 \arguments{
-\item{dat}{Data that you want to implement GSCA.}
+\item{dat}{Data that you want to implement the gscaLCA function.}
 
 \item{varnames}{A character vector. The names of columns to be used for gscaLCA.}
 
-\item{ID.var}{A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find a ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.}
+\item{ID.var}{A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find an ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.}
 
-\item{num.cluster}{A numeric element. Number of cluster to be analyzed. The default is 2.}
+\item{num.cluster}{A numeric element. The number of clusters to be analyzed. The default is 2.}
 
-\item{num.factor}{Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assumes to share one latent variable. The default is "EACH".}
+\item{num.factor}{Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assume to share one latent variable. The default is "EACH".}
 
-\item{Boot.num}{Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.}
+\item{Boot.num}{The Number of bootstraps. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.}
 
 \item{multiple.Core}{A logical element. TRUE enables to use multiple cores for the bootstrap. The default is \code{FASLE}.}
 
-\item{verbose}{Logical. It indicates whether \code{gscaLCA} prints output to the console. The default is \code{TRUE}.}
+\item{covnames}{A character vector. The names of covariates columns to be used for gscaLCR.}
 
-\item{graphs_print}{Logical. It indicates whether \code{gscaLCA} prints the graphs. The default is \code{TRUE}.}
+\item{cov.model}{A numeric vector. The indicators whether covariates are involved in GSCA model or not. 1 if it involves and otherwise 0.}
+
+\item{multinomial.test.ref}{A character element. "MAX", "MIX", "FIRST", "LAST are the available options. The default is \code{MAX}.}
 }
 \value{
-A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
+A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 }
 \description{
 This function enables to run LCA based on GSCA algorithm.
 }
 \examples{
 
-# ddHealth data with 2 clusters with 1000 samples
-AH.sample= AddHealth[1:1000,]
-R2 = gscaLCA(AH.sample, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
-
+#AddHealth data with 2 clusters with 1000 samples
+AH.sample= AddHealth[1:500,]
+R2 = gscaLCA (dat = AH.sample,
+               varnames = names(AddHealth)[2:6],
+               ID.var = "AID",
+               num.cluster = 3,
+               num.factor = "EACH",
+               Boot.num = 0,
+               multiple.Core = F)
+summary(R2)
 R2$model.fit      # Model fit
 R2$LCprevalence   # Latent Class Prevalence
-R2$RespProb       # Item Reponse Probability
-R2$membership     # Membership for all observations
+R2$RespProb       # Item Response Probability
+head(R2$membership)     # Membership for all observations
+
+# AddHealth data with 2 clusters with 1000 samples with two covariates
+R2_2C = gscaLCA (dat = AH.sample,
+                 varnames = names(AddHealth)[2:6],
+                 ID.var = "AID",
+                 num.cluster = 3,
+                 num.factor = "EACH",
+                 Boot.num = 0,
+                 multiple.Core = FALSE,
+                 covnames = names(AddHealth)[7:8],
+                 cov.model = c(1, 0),
+                 multinomial.test.ref = "MAX")
+
+# print gscaLCR information with multinomial regression with hard partitioning
+# summary(R2_2C, "multinomial.hard")
 
 \donttest{
 # AddHealth data with 2 clusters
-R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
+R2 = gscaLCA(AddHealth,
+             varnames = names(AddHealth)[2:6],
+             num.cluster = 2,
+             Boot.num = 20,
+             multiple.Core = FALSE)
 # TALIS data with 3 clusters
-T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
+T3 = gscaLCA(TALIS,
+             varnames = names(TALIS)[2:6],
+             num.cluster = 3,
+             num.factor = "ALLin1",
+             Boot.num = 20,
+             multiple.Core = FALSE)
 
 }
 

@@ -1,6 +1,6 @@
 
 Boot_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                   MS,z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,W0,vb,alpha)
+                   MS,z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,W0,vb,alpha,A0)
 {
 
   model.fit.b= NULL
@@ -44,7 +44,7 @@ Boot_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespPro
 
 
   ##############
-  AL_gscaLCA = al_gscaLCA(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha)
+  AL_gscaLCA = al_gscaLCA(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha,A0)
   U = AL_gscaLCA$U
   bi = AL_gscaLCA$bi
   f1 = AL_gscaLCA$f1
@@ -84,7 +84,7 @@ Boot_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespPro
     red.c = c - length(index0.b1)
   }
 
-  RespProb.raw  <- RespItemProb(bz0, U.1.0, LEVELs)
+  RespProb.raw  <- RespItemProb(bz0, varnames, U.1.0, LEVELs)
 
   if(nrow(RespProb.raw[[1]])!= nrow(RespProb.1[[1]])) stop("An optimalized solution cannot be found; it maybe due to different numbers of classes over bootstrap.")
 

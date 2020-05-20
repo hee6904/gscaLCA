@@ -1,5 +1,6 @@
-RespItemProb <- function(dat, mem.dat, LEVELs)
+RespItemProb <- function(dat, varnames, mem.dat, LEVELs)
 {
+  dat = dat[,varnames] 
 
   mem.dat <- data.frame(mem.dat)
   dat$label <- mem.dat$label

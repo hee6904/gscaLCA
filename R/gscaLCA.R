@@ -2,17 +2,18 @@
 #'
 #' @description This function enables to run LCA based on GSCA algorithm.
 #'
-#' @param dat Data that you want to implement GSCA.
+#' @param dat Data that you want to implement the gscaLCA function.
 #' @param varnames A character vector. The names of columns to be used for gscaLCA.
-#' @param ID.var  A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find a ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.
-#' @param num.cluster A numeric element. Number of cluster to be analyzed. The default is 2.
-#' @param num.factor Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assumes to share one latent variable. The default is "EACH".
-#' @param Boot.num   Number of bootstrap. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.
+#' @param ID.var  A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find an ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.
+#' @param num.cluster A numeric element. The number of clusters to be analyzed. The default is 2.
+#' @param num.factor Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assume to share one latent variable. The default is "EACH".
+#' @param Boot.num   The Number of bootstraps. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.
 #' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap. The default is \code{FASLE}.
-#' @param verbose Logical. It indicates whether \code{gscaLCA} prints output to the console. The default is \code{TRUE}.
-#' @param graphs_print Logical. It indicates whether \code{gscaLCA} prints the graphs. The default is \code{TRUE}.
+#' @param covnames A character vector. The names of covariates columns to be used for gscaLCR.
+#' @param cov.model A numeric vector. The indicators whether covariates are involved in GSCA model or not. 1 if it involves and otherwise 0.
+#' @param multinomial.test.ref A character element. "MAX", "MIX", "FIRST", "LAST are the available options. The default is \code{MAX}.
 #'
-#' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices(model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the prosterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
+#' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
 #' @import parallel
 #' @import devtools
@@ -28,52 +29,89 @@
 #' @importFrom fclust FKM
 #' @importFrom stats complete.cases quantile runif sd
 #' @importFrom foreach "%do%" "%dopar%" foreach
+#' @importFrom ggplot2 ggplot
 #' @export
 #'
 #'
 #' @examples
 #'
-#' # AddHealth data with 2 clusters with 1000 samples
-#' AH.sample= AddHealth[1:1000,]
-#' R2 = gscaLCA(AH.sample, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
-#'
+#' #AddHealth data with 2 clusters with 1000 samples
+#' AH.sample= AddHealth[1:500,]
+#' R2 = gscaLCA (dat = AH.sample,
+#'                varnames = names(AddHealth)[2:6],
+#'                ID.var = "AID",
+#'                num.cluster = 3,
+#'                num.factor = "EACH",
+#'                Boot.num = 0,
+#'                multiple.Core = F)
+#' summary(R2)
 #' R2$model.fit      # Model fit
 #' R2$LCprevalence   # Latent Class Prevalence
-#' R2$RespProb       # Item Reponse Probability
-#' R2$membership     # Membership for all observations
+#' R2$RespProb       # Item Response Probability
+#' head(R2$membership)     # Membership for all observations
+#'
+#' # AddHealth data with 2 clusters with 1000 samples with two covariates
+#' R2_2C = gscaLCA (dat = AH.sample,
+#'                  varnames = names(AddHealth)[2:6],
+#'                  ID.var = "AID",
+#'                  num.cluster = 3,
+#'                  num.factor = "EACH",
+#'                  Boot.num = 0,
+#'                  multiple.Core = FALSE,
+#'                  covnames = names(AddHealth)[7:8],
+#'                  cov.model = c(1, 0),
+#'                  multinomial.test.ref = "MAX")
+#'
+#' # print gscaLCR information with multinomial regression with hard partitioning
+#' # summary(R2_2C, "multinomial.hard")
 #'
 #' \donttest{
 #' # AddHealth data with 2 clusters
-#' R2 = gscaLCA(AddHealth, varnames = names(AddHealth)[2:6], num.cluster = 2, Boot.num=0)
+#' R2 = gscaLCA(AddHealth,
+#'              varnames = names(AddHealth)[2:6],
+#'              num.cluster = 2,
+#'              Boot.num = 20,
+#'              multiple.Core = FALSE)
 #' # TALIS data with 3 clusters
-#' T3 = gscaLCA(TALIS, names(TALIS)[2:6], num.factor = "ALLin1", num.cluster = 3, Boot.num=0)
+#' T3 = gscaLCA(TALIS,
+#'              varnames = names(TALIS)[2:6],
+#'              num.cluster = 3,
+#'              num.factor = "ALLin1",
+#'              Boot.num = 20,
+#'              multiple.Core = FALSE)
 #'
 #'}
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
 #'
-gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
-                    num.factor="EACH", Boot.num=20, multiple.Core = FALSE,
-                    verbose=TRUE, graphs_print= TRUE)
+gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
+                    num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE,
+                    covnames = NULL, cov.model = NULL, multinomial.test.ref = "MAX")
 {
 
-  dat.origin = dat
-
-  #options(warn=1)
-
-  ### Input data
-
   if(is.null(varnames)) stop ("Variable names for analysis are not specified.")
-  if(is.null(num.cluster)) stop ("the number of cluster is not specified.")
+  if(length(intersect(varnames, names(dat)))!=length(varnames)) stop ("Variable names for analysis are not in the data set")
+  if(!is.null(covnames)){
+    if(length(intersect(varnames, names(dat)))!=length(varnames)) stop ("Covariates names for analysis are not in the data set")
+  }
 
+  if(is.null(num.cluster)) stop ("The number of cluster is not specified.")
+  if(!(num.factor =="EACH" | num.factor =="ALLin1")) stop ("Please check the option `num.factor`")
+  if(!is.null(covnames)){
+    if(length(covnames) != length(cov.model)) stop ("Please check the objects covnames and cov.model")
+  }
+
+  dat.origin = dat
+  nobs.origin = nrow(dat.origin)
 
   # Check whether data is completed or not. If not, use listwise delection was conducted.
   if(sum(complete.cases(dat))!=nrow(dat)){
-    warning('Listwise deletion was used. Incompleted data is not available in the current version')
-    dat = dat[complete.cases(dat[, varnames]),  ]
+    print('Listwise deletion was applied.')
+    dat = dat[complete.cases(dat[, c(varnames,covnames)]),  ]
   }
 
 
+  # Set up ID names
   if(!is.null(ID.var)){
     ID = dat[, ID.var]
   }else if(length(grep("id",names(dat), ignore.case=TRUE))==1){
@@ -86,15 +124,50 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
     }
 
     ID = 1:nrow(dat)
+    dat$ID = ID
 
   }
 
-  Z00 <- dat[, varnames]
+
+  dat.cov = dat
+
+
+  # Variables' location for optimization
+  # vb = c(which(names(dat) %in% varnames),
+  #        which(names(dat) %in% covnames)[sapply(dat[,covnames],is.factor)])
+  #vb <- 1:ncol(z0) # num of variable (columns of data)
+
+
+
+  # Set up the number of variables
+  nInd <- length(varnames)
+
+  if(is.null(covnames)){
+    nCov= 0
+    nCOV = 0}else{
+      COVNAMES <- covnames
+      nCOV <- length(COVNAMES)
+      covnames <- covnames[cov.model]
+      nCov <- length(covnames)}
+
+  dat = dat[, c(varnames,covnames)]
+  vb = c(which(names(dat) %in% varnames))
+
+  nvar = nInd + nCov
+  nobs = nrow(dat)
+
+
+
+  Z00 <- dat
 
   LEVELs = list()
   for(j in 1:ncol(Z00))
   {
-    LEVELs[[j]] = levels(as.factor(Z00[,j]))
+    if(j %in% 1:nInd){
+      LEVELs[[j]] = levels(as.factor(Z00[,j]))
+    }
+
+#    LEVELs[[j]] = levels(as.factor(Z00[,j]))
 
     if(is.factor(Z00[,j])){
       Z00[,j] = as.numeric(Z00[,j])
@@ -126,36 +199,63 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
   if(num.factor=="EACH"){
-    ####### ncol(z0) factor ###################
-    loadtype <- rep(1, ncol(z0))             #0 = formative, 1 = reflective
+    nlv <- nInd + nCov               # number of latent variable without covarite
 
-    W0 <- diag(ncol(z0))
+    ####### num.ind factor ###################
+    #    loadtype <- c(rep(1, nInd), rep(0, nCov))             #0 = formative, 1 = reflective
+    loadtype <- rep(1, nlv)
+    W0 <- diag(nInd)
     diag(W0)<- 99
+    B0 <- matrix(99,  ncol=nInd, nrow=nInd)
+    diag(B0) <- 0
 
-    B0 <- matrix(99,  ncol=ncol(z0), nrow=ncol(z0))
-    diag(B0) = 0
+    if(nCov!=0)
+    {
+      W0.C = diag(nCov)
+      diag(W0.C) = 99
 
-    # BO.vect <- c()
-    # for (r in 1:ncol(z0))
-    # {
-    #   BO.vect <- c( BO.vect, rep(99, r-1), rep(0, ncol(z0)+1-r ))
-    # }
-    #
-    # B0 <- matrix(BO.vect, nrow=ncol(z0))
+      W0 <- cbind(rbind(W0, matrix(0, nrow = nCov, ncol = nInd)),
+                  rbind(matrix (0, nrow = nInd, ncol = nCov), W0.C))
+      B0 <- cbind(rbind(B0, matrix(99, nrow = nCov, ncol = nInd)),
+                  matrix(0, nrow = nlv, ncol = nCov))
+
+      # B0 <- matrix(99,  ncol=nCov+nInd, nrow=nCov+nInd)
+      # diag(B0) = 0
+      # B0[1:nInd, (nInd+1):(nCov+nInd)] = 0
+    }
 
   }else if(num.factor=="ALLin1"){
+    nlv <- 1 + nCov
 
     ###### 1 factor ##############
-    loadtype <- c(1)             #0 = formative, 1 = reflective
+    #    loadtype <- c(1, rep(0, nCov))             #0 = formative, 1 = reflective
+    loadtype <- rep(1, nlv)
 
-    W0 <- matrix(rep(99, ncol(z0)), nrow=ncol(z0),byrow=TRUE)
+    W0 <- matrix(rep(99, nInd), nrow=nInd, byrow=TRUE)
 
     B0 <- matrix(c(0), nrow=1, byrow=TRUE)
+    #diag(B0) <- 0
+
+    if(nCov!=0)
+    {
+      W0.C = diag(nCov)
+      diag(W0.C) = 99
+
+      W0 <- cbind(rbind(W0, matrix(0, nrow = nCov, ncol = 1)),
+                  rbind(matrix (0, nrow = nInd, ncol = nCov), W0.C))
+      B0 <- cbind(rbind(B0, matrix(99, nrow = nCov, ncol = 1)),
+                  matrix(0, nrow = nlv, ncol = nCov))
+
+    #   W0 <- cbind(c(as.numeric(W0), rep(0,  nCov)),
+    #               rbind(matrix (0, nrow = nInd, ncol = nCov), diag(nCov)))
+    # B0 <-  matrix(99, nrow = nlv, ncol = nlv)
+    # diag(B0) <- 0
+    # B0[1,] <- 0
+    }
+
   }
 
 
-
-  vb <- 1:ncol(z0) # num of variable (columns of data)
 
   A0 <- t(W0)
 
@@ -163,22 +263,22 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
   nlv <- length(loadtype)                 # NUM OF LATENTS
   ntv <- nvar + nlv                       # NUM OF MANIFESTS AND LATENTS
 
-  nnv <- c()          # num of nonmissing values in each variable
-  for (j in 1:nvar)
-  {
-    nnv <- c(nnv, length(!is.na(z0[,j])))
-  }
+  # nnv <- c()          # num of nonmissing values in each variable
+  # for (j in 1:nvar)
+  # {
+  #   nnv <- c(nnv, length(!is.na(z0[,j])))
+  # }
 
 
   ######################################################
   # WEIGHT, LOADING AND PATH COEFFICIENT MATRICES
   ######################################################
-  for (p in 1:nlv)
-  {
-    if(loadtype[p] == 0){
-      A0[p, ] <- rep(0, nvar)
-    }
-  }
+  # for (p in 1:nlv)
+  # {
+  #   if(loadtype[p] == 0){
+  #     A0[p, ] <- rep(0, nvar)
+  #   }
+  # }
 
   T0 <- cbind(A0,B0)
   vect0 <- as.vector(T0)
@@ -191,11 +291,16 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
   EST = EST_ft(T0, nzt, vect0, ID, LEVELs, loadtype,
-               MS, z0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha)
+               MS, z0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha, varnames, A0)
   model.fit.1    = EST$model.fit.1
   LCprevalence.1 = EST$LCprevalence.1
   RespProb.1     = EST$RespProb.1
   membership.1   = EST$membership.1
+  it.out = EST$it.out
+  it.in = EST$it.in
+  A.mat = EST$A.mat
+  B.mat = EST$B.mat
+  W.mat = EST$W.mat
 
 
   if (Boot.num > 0){
@@ -203,9 +308,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
       z0[sample(1:nrow(z0),replace = TRUE),]
     }
 
-
-
-   if(isTRUE(multiple.Core)){
+   if(multiple.Core){
 
      BZ0 = foreach(i=1:Boot.num) %do% Boot.Gen(z0)
 
@@ -222,10 +325,11 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
 
      cl <- makeCluster(numCores)
-      registerDoSNOW(cl)
+
+     registerDoSNOW(cl)
 
 
-     pb <- progress_bar$new(
+     pb <- progress::progress_bar$new(
        #format = "letter = :letter [:bar] :elapsed | eta: :eta",
        total = Boot.num,    # 100
        width = 60)
@@ -244,7 +348,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
 
      BOOT.result <-
        foreach(i=1:Boot.num, .options.snow = opts) %dopar% Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                                                                   MS, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha)
+                                                                   MS, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha,A0)
 
      stopCluster(cl)
 
@@ -263,7 +367,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
        bz0 = Boot.Gen(z0)
 
        BOOT.result = Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                   MS, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha)
+                   MS, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha, A0)
 
 
        model.fit[[b]] =  BOOT.result$model.fit.b
@@ -294,6 +398,36 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
     model.fit[[1]]= model.fit.1
     LCprevalence[[1]]= LCprevalence.1
     RespProb[[1]]= RespProb.1
+  }
+
+  if(nCOV > 0 & length(unique(membership.1$label)) > 1){
+
+    ## hard ##
+      multinom_result.hard = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.test.ref,
+                                        partition = "hard")
+      cov_results.multi.hard = multinom_result.hard$test_results
+      cov_results_raw.multi.hard =multinom_result.hard$multinom_raw
+
+      binom_result.hard = test_binomial(dat.cov, COVNAMES, membership.1 , num.cluster,
+                                        partition = "hard")
+      cov_results.bin.hard = binom_result.hard$test_results
+      cov_results_raw.bin.hard = binom_result.hard$binomial_raw
+
+    ## soft ##
+      multinom_result.soft = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.test.ref,
+                                              partition = "soft")
+      cov_results.multi.soft = multinom_result.soft$test_results
+      cov_results_raw.multi.soft = multinom_result.soft$multinom_raw
+
+
+      binom_result.soft = suppressWarnings( test_binomial(dat.cov, COVNAMES, membership.1 , num.cluster,
+                                                         partition = "soft"))
+      cov_results.bin.soft = binom_result.soft$test_results
+      cov_results_raw.bin.soft = binom_result.soft$binomial_raw
+
+      # soft_result = test_soft(dat.cov, COVNAMES, membership.1 , num.cluster)
+      # cov_results.lm = soft_result$test_results
+      # cov_results_raw.lm = soft_result$glm_raw
   }
 
 
@@ -362,12 +496,13 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
   }
 
 
-  Iden.vect= c()
+  Iden.vect = c()
 
   for (j in 1:(length(LEVELs)-1))
   {
     Iden.vect = c(Iden.vect, identical(LEVELs[[j]], LEVELs[[j+1]]))
   }
+  all.Levels.equal = all(Iden.vect==TRUE)
 
   if(all(Iden.vect!=TRUE)){
     P ="Sorry, We don't provide the plot because the variable does not have the same number of categories."
@@ -389,7 +524,7 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
       matYes$Type = factor(matYes$Type, levels= varnames, labels=varnames)
 
 
-      class.numeric = as.numeric(str_extract(unique(matYes$Class), "\\-*\\d+\\.*\\d*"))
+      class.numeric = as.numeric(stringr::str_extract(unique(matYes$Class), "\\-*\\d+\\.*\\d*"))
 
 
       matYes$Class = factor(matYes$Class , unique(matYes$Class),
@@ -401,15 +536,20 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
       Mat.YES[[j]]= matYes
     }
 
-      ## Line plot by using Aggregated Data (with or without error bar)
-   P = lapply(Mat.YES, function(x){ggplot(x, aes(x= x$Type , y= x$Estimate,
-                                              colour= x$Class, group=x$Class)) +
-        geom_line(size=1, aes(linetype=x$Class)) +
-        geom_point(size=3, aes(shape =x$Class))+
+    P = lapply(Mat.YES, function(mat.yes){
+        Type = mat.yes$Type
+        Estimate = mat.yes$Estimate
+        Class = mat.yes$Class
+        Category = mat.yes$Category
+
+        ggplot(data = mat.yes , aes(x= Type , y= Estimate,
+                      colour= Class, group=Class)) +
+        geom_line(size=1, aes(linetype=Class)) +
+        geom_point(size=3, aes(shape =Class))+
         theme_light()+
         ylim(0, 1)+
         #ylab("Probability of Yes")+
-        ggtitle(paste("Response:", unique(x$Category))) +
+        ggtitle(paste("Response:", unique(Category))) +
         theme(
           plot.title = element_text(size = 20),
           axis.title.x = element_blank(),
@@ -419,25 +559,69 @@ gscaLCA <- function(dat, varnames=NULL, ID.var=NULL, num.cluster=2,
           legend.text = element_text(size=15),
           legend.title = element_text(size=15),
           axis.text.y = element_text(size = 15))+
-        labs(color='Class', shape="Class", linetype="Class")})
+        labs(color='Latent Class', shape="Latent Class", linetype="Latent Class")
+       })
 
 
 
   }
 
+  Boot.num.im = Boot.num - sum(unlist(lapply(model.fit, function(x){is.null(x)})))
 
-  RESULT <- list( N = nrow(z0), C = c,
-                  Boot.num.im = Boot.num - sum(unlist(lapply(model.fit, function(x){is.null(x)}))),
-                  model.fit = model.fit.result,
-                  LCprevalence = LCprevalence.result,
-                  RespProb = RespProb.results,
-                  membership = membership.1, plot = P)
+  if(nCOV > 0 & length(unique(membership.1$label)) > 1){
+    RESULT <- list( N = nobs, N.origin = nobs.origin, LEVELs = LEVELs, all.Levels.equal = all.Levels.equal,
+                    num.cluster = num.cluster,
+                    Boot.num.im = Boot.num.im,
+                    model.fit = model.fit.result,
+                    LCprevalence = LCprevalence.result,
+                    RespProb = RespProb.results,
+                    it.in= it.in,
+                    it.out = it.out,
+                    membership = membership.1, plot = P,
+                    cov_results.multi.hard = cov_results.multi.hard,
+                    cov_results_raw.multi.hard  = cov_results_raw.multi.hard,
+
+                    cov_results.bin.hard = cov_results.bin.hard,
+                    cov_results_raw.bin.hard = cov_results_raw.bin.hard,
+
+                    cov_results.multi.soft = cov_results.multi.soft,
+                    cov_results_raw.multi.soft  = cov_results_raw.multi.soft,
+
+                    cov_results.bin.soft = cov_results.bin.soft,
+                    cov_results_raw.bin.soft = cov_results_raw.bin.soft,
+                    #cov_results.lm = cov_results.lm,
+                    #cov_results_raw = cov_results_raw,
+                    A.mat = A.mat,
+                    B.mat = B.mat,
+                    W.mat = W.mat,
+                    used.dat = dat.cov)
+
+    # if(verbose) print_gscaLCA(c, nobs, nobs.origin, Boot.num, Boot.num.im, model.fit.result,LCprevalence.result,
+    #                           RespProb.1, cov_results.multi, cov_results.bin, cov_results.lm)
+
+  }else{
+    RESULT <- list( N = nobs, N.origin = nobs.origin, LEVELs = LEVELs, all.Levels.equal = all.Levels.equal,
+                    num.cluster = num.cluster,
+                    Boot.num.im = Boot.num.im,
+                    model.fit = model.fit.result,
+                    LCprevalence = LCprevalence.result,
+                    RespProb = RespProb.results,
+                    it.in= it.in,
+                    it.out = it.out,
+                    membership = membership.1, plot = P,
+                    A.mat = A.mat,
+                    B.mat = B.mat,
+                    W.mat = W.mat,
+                    used.dat = dat.cov)
+    # if(verbose) print_gscaLCA(c, nobs, nobs.origin, Boot.num, Boot.num.im,  model.fit.result,LCprevalence.result,
+    #                           RespProb.1)
+  }
 
 
-  if(verbose) print_gscaLCA(c, z0, dat.origin, Boot.num, model.fit, model.fit.result,LCprevalence.result,
-                             RespProb.1)
-  if(graphs_print) print_graph_gscaLCA (Iden.vect, LEVELs, P)
+  # if(graphs_print) print_graph_gscaLCA (all.Levels.equal, LEVELs, P)
 
+  class(RESULT) <- 'gscaLCA'
+  #RESULT$call <- match.call()
 
   return(RESULT)
 

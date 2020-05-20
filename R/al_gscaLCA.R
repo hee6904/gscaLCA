@@ -1,15 +1,10 @@
-al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha){
+al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha, A0= NULL){
   ## MS=1 (mean structure); MS=0 (no mean structure)
   if (MS == 1){
     Z <- bz0
   }else{
 
-    Z <- matrix(ncol=ncol(bz0), nrow=nrow(bz0))
-
-    for (j in 1:nvar){
-      Z[,j] <- scale(bz0[,j])*sqrt(length(bz0[,j]))/sqrt(length(bz0[,j])-1)
-    }
-
+    Z = apply(bz0, 2, function(x)scale(x)*sqrt(length(x))/sqrt(length(x)-1))
   }
 
 
@@ -39,7 +34,7 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
   ceps = 0.00001           # convergence tolerance
   imp = 10^50             # initial improvement
   f0 = 10^50
-
+  IT1 = c()
 
   while((it <= itmax) & (imp > ceps))
   {
@@ -141,8 +136,13 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
           mz <- mz0[!is.na(mz0[,J]), J]
           # z0_mn <- z0[!is.na(z0[,J]), J]  #not necessary
 
+          # z0.vect <- z0[!is.na(z0[,J]),J]
+          # dummy_mat  <- matrix(nrow= length(z0.vect), ncol= max(z0.vect)- min(z0.vect)+1)
+          # u <- sapply(1:ncol(dummy_mat), function(i) ifelse(vect==i, 1, 0))
+
           u <- fastDummies::dummy_cols(z0[!is.na(z0[,J]),J])
           u <- as.matrix(u[,paste0(".data_", 1:max(z0[,J]))])
+
 
           ## Optimizing based on type
           # NORMINAL
@@ -166,8 +166,8 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
         dif <- Z %*% V[[k]]-  Z%*% W[[k]]%*%T.mat[[k]]  # Z was used in matlab code; Z_c was not work well
         obj_func <- Psi_c - Gamma_c %*% T.mat[[k]]
 
-        f1 <- f1 + psych::tr(t(obj_func)%*%obj_func)
-        f2 <- f2 + psych::tr(t(Psi_c)%*%Psi_c)
+        f1 <- f1 + sum(diag((t(obj_func)%*%obj_func)))
+        f2 <- f2 + sum(diag((t(Psi_c)%*%Psi_c)))
 
         M <- cbind(M, rowSums(dif^2))
 
@@ -181,9 +181,11 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
       #print(paste0("I_LOOP: it1=",it1, ", f10=", round(f10,2), ", f1=", round(f1,2), ", imp1=", round(imp1,7)))
       f10 <- f1
 
+
       #snzt<- snzt + nzt # should be before loop for k
     } # second while
 
+    IT1 = c(IT1, it1)
     ## STEP 4 Update U
 
     for (k in 1:c)
@@ -201,5 +203,87 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
   }#whole while (end ALS)
   #print(b)
 
-  return(list(U=U, bi=bi, f1=f1, f2=f2))
+  if(!is.null(A0)){
+    A <- list()
+    B <- list()
+    # E <- list()
+    # Omega <- list()
+
+    classfied = table(apply(U, 1, which.max))
+
+    for (k in 1:c)
+    {
+      #Omega[[k]] <- V[[k]]- W[[k]]%*%T[[k]] # needed for modelfit.ft
+      #E[[k]] <- Z %*% Omega[[k]] # Z_c?
+
+      if(nrow(A0)==1){
+
+        A[[k]] <- matrix(T.mat[[k]][, 1:ncol(A0)], nrow=1)
+        B[[k]] <- matrix(T.mat[[k]][, (ncol(A0)+1):ntv], nrow= 1)
+
+
+        if (MS==0){
+          for (i in 1:nrow(W0))
+          {
+            for(j in 1:ncol(W0))
+            {
+              if(W0[i, j]==99){
+                W[[k]][i,j]=W[[k]][i,j]*sqrt(classfied[k])
+              }
+            }
+          }
+
+          for( i in 1:nrow(A0))
+          {
+            for(j in 1:ncol(A0))
+            {
+              if(A0[i,j]==99){
+                A[[k]][i,j]=A[[k]][i,j]/sqrt(classfied[k])
+              }
+            }
+
+          }
+        }# if MS==0
+
+      }else{
+        A[[k]] <- as.matrix(T.mat[[k]][, 1:ncol(A0)])
+        B[[k]] <- as.matrix(T.mat[[k]][, (ncol(A0)+1):ntv])
+
+
+        if (MS==0){
+          for (i in 1:nrow(W0))
+          {
+            for(j in 1:ncol(W0))
+            {
+              if(W0[i, j]==99){
+                W[[k]][i,j]=W[[k]][i,j]*sqrt(classfied[k])
+              }
+            }
+          }
+
+          for( i in 1:nrow(A0))
+          {
+            for(j in 1:ncol(A0))
+            {
+              if(A0[i,j]==99){
+                A[[k]][i,j]=A[[k]][i,j]/sqrt(classfied[k])
+              }
+            }
+
+          }
+        }# if MS==0
+
+      }
+
+
+    }
+
+    # A;
+    # W;
+    # B;
+  }#
+
+
+
+  return(list(U=U, bi=bi, f1=f1, f2=f2, it.out = it, it.in = IT1, A=A, B=B, W=W ))
 }

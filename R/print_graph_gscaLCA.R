@@ -1,6 +1,6 @@
-print_graph_gscaLCA= function(Iden.vect, LEVELs, P)
+print_graph_gscaLCA= function(all.Levels.equal, LEVELs, P)
 {
-  if(all(Iden.vect==TRUE)){
+  if(all.Levels.equal){
     if(length(LEVELs[[1]])==2){
       print(P[[1]])
     }else{
