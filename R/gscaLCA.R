@@ -1,19 +1,19 @@
-#' @title Main function of LCA by using fuzzy clustering GSCA
+#' @title Main function of gscaLCA by using fuzzy clustering GSCA
 #'
-#' @description This function enables to run LCA based on GSCA algorithm.
+#' @description Fitting a component-based LCA by utilizing fuzzy clustering GSCA algorithm.
 #'
-#' @param dat Data that you want to implement the gscaLCA function.
-#' @param varnames A character vector. The names of columns to be used for gscaLCA.
-#' @param ID.var  A character element. The name of ID variable. If ID variable is not specified, gscaLCA will find an ID variable in a given data. The ID of observation are automatically created when data set does not have any ID variable. The default is NULL.
-#' @param num.cluster A numeric element. The number of clusters to be analyzed. The default is 2.
-#' @param num.factor Either "EACH" or "ALLin1"."EACH" indicates that each variable assumes to have latent variable. "ALLin1" indicates that all variables assume to share one latent variable. The default is "EACH".
-#' @param Boot.num   The Number of bootstraps. The standard errors of parameters are obtained by bootstrap in GSCA algorithm. The default is 20.
-#' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap. The default is \code{FASLE}.
-#' @param covnames A character vector. The names of covariates columns to be used for gscaLCR.
-#' @param cov.model A numeric vector. The indicators whether covariates are involved in GSCA model or not. 1 if it involves and otherwise 0.
-#' @param multinomial.test.ref A character element. "MAX", "MIX", "FIRST", "LAST are the available options. The default is \code{MAX}.
+#' @param dat         Data that you want to fit the gscaLCA function into.
+#' @param varnames    A character vector. The names of columns to be used in the gscaLCA function.
+#' @param ID.var      A character element. The name of ID variable. If ID variable is not specified, the gscaLCA function will search an ID variable in the given data. The ID of observations will be automatically generated as a numeric variable if the data set does not include any ID variable. The default is NULL.
+#' @param num.cluster A numeric element. The number of clusters to be identified The default is 2.
+#' @param num.factor  Either "EACH" or "ALLin1"."EACH" specifies the sitatuion that each indicator is assumed to be its phantom latent variable. "ALLin1" indicates that all variables are assumed to be explained by a common latent variable. The default is "EACH".
+#' @param Boot.num    The number of bootstraps. The standard errors of parameters are computed from the bootstrap within the gscaLCA algorithm. The default is 20.
+#' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap wehn they are available. The default is \code{FASLE}.
+#' @param covnames    A character vector of covariates. The covariates are used when latent class regression (LCR) is fitted.
+#' @param cov.model   A numeric vector. The indicator function of latent class regression (LCR) that covariates are involved in fitting the fuzzy clustering GSCA. 1 if gscaLCA is for LCR and otherwise 0.
+#' @param multinomial.test.ref A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.
 #'
-#' @return A list of the used sample size (N), the number of cluster (C), the number of Bootstrap actually used (Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespRrob),  the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
+#' @return A list of the sample size (N), the number of cluster (C), the number of bootstraps (Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespProb), the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
 #'
 #' @import parallel
 #' @import devtools
@@ -35,54 +35,55 @@
 #'
 #' @examples
 #'
-#' #AddHealth data with 2 clusters with 1000 samples
+#' #AddHealth data with 3 clusters with 500 samples
 #' AH.sample= AddHealth[1:500,]
-#' R2 = gscaLCA (dat = AH.sample,
+#' R3 = gscaLCA (dat = AH.sample,
 #'                varnames = names(AddHealth)[2:6],
 #'                ID.var = "AID",
 #'                num.cluster = 3,
 #'                num.factor = "EACH",
 #'                Boot.num = 0,
 #'                multiple.Core = F)
-#' summary(R2)
-#' R2$model.fit      # Model fit
-#' R2$LCprevalence   # Latent Class Prevalence
-#' R2$RespProb       # Item Response Probability
-#' head(R2$membership)     # Membership for all observations
+#' summary(R3)
+#' R3$model.fit      # Model fit
+#' R3$LCprevalence   # Latent Class Prevalence
+#' R3$RespProb       # Item Response Probability
+#' head(R3$membership)     # Membership for all observations
 #'
-#' # AddHealth data with 2 clusters with 1000 samples with two covariates
-#' R2_2C = gscaLCA (dat = AH.sample,
+#' # AddHealth data with 3 clusters with 500 samples with two covariates
+#' R3_2C = gscaLCA (dat = AH.sample,
 #'                  varnames = names(AddHealth)[2:6],
 #'                  ID.var = "AID",
 #'                  num.cluster = 3,
 #'                  num.factor = "EACH",
 #'                  Boot.num = 0,
 #'                  multiple.Core = FALSE,
-#'                  covnames = names(AddHealth)[7:8],
-#'                  cov.model = c(1, 0),
+#'                  covnames = names(AddHealth)[7:8], # Gender and Edu
+#'                  cov.model = c(1, 0),              # Only Gender varaible is added to the gscaLCR.
 #'                  multinomial.test.ref = "MAX")
 #'
-#' # print gscaLCR information with multinomial regression with hard partitioning
-#' # summary(R2_2C, "multinomial.hard")
+#' # To print with the results of multinomial regression with hard partitioning of the gscaLCR,
+#' # use the option of "multinomial.hard".
+#' # summary(R3_2C, "multinomial.hard")
 #'
 #' \donttest{
-#' # AddHealth data with 2 clusters
+#' # AddHealth data with 2 clusters with 20 bootstraps
 #' R2 = gscaLCA(AddHealth,
 #'              varnames = names(AddHealth)[2:6],
 #'              num.cluster = 2,
 #'              Boot.num = 20,
-#'              multiple.Core = FALSE)
-#' # TALIS data with 3 clusters
+#'              multiple.Core = FALSE) # "multiple.Core = TRUE" is recommended.
+#' # TALIS data with 3 clusters with 20 bootstraps and the "ALLin1" option
 #' T3 = gscaLCA(TALIS,
 #'              varnames = names(TALIS)[2:6],
 #'              num.cluster = 3,
 #'              num.factor = "ALLin1",
 #'              Boot.num = 20,
-#'              multiple.Core = FALSE)
+#'              multiple.Core = FALSE) # "multiple.Core = TRUE" is recommended.
 #'
 #'}
 #'
-#' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 1-16.
+#' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 47, 291-306. https://doi.org/10.1007/s41237-019-00084-6
 #'
 gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
                     num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE,
@@ -106,7 +107,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
 
   # Check whether data is completed or not. If not, use listwise delection was conducted.
   if(sum(complete.cases(dat))!=nrow(dat)){
-    print('Listwise deletion was applied.')
+    print('Listwise deletion was applied for cases whose variables used in gscaLCA have any missing.')
     dat = dat[complete.cases(dat[, c(varnames,covnames)]),  ]
   }
 

@@ -1,10 +1,11 @@
-#' The 2nd and 3rd step of gscaLCR, which are the partitioning and fitting regression.
+#' The 2nd and 3rd step of gscaLCA, which are the partitioning and fitting regression
+#' @description The 2nd and 3rd step of gscaLCA, which are the partitioning and fitting regression in the latent class regression.
 #'
 #' @param results.obj the results of gscaLCA.
-#' @param covnames a vector of characters of covariate names.
-#' @param multinomial.test.ref A character element. "MAX", "MIX", "FIRST", "LAST are the available options. The default is \code{MAX}.
+#' @param covnames A character vector of covariates. The covariates are used when latent class regression (LCR) is fitted.
+#' @param multinomial.test.ref A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.
 #'
-#' @return A results of class gscaLCA with covariates
+#' @return Results of the gscaLCR, fitting regression after partioning in addtion to gscaLCA results.
 #' @export
 #'
 #' @examples

@@ -3,18 +3,18 @@
 \docType{data}
 \name{AddHealth}
 \alias{AddHealth}
-\title{Add Health data about substance use and abuse}
+\title{Add Health data about substance use}
 \format{
-A data frame with 5114 observations on the following 6 variables.
+A data frame with 5114 observations on the following 8 variables.
 \describe{
-  \item{AID}{a numeric vector of observations' ID.}
-  \item{Smoking}{a factor with levels "Yes" or "No"; H4TO1: Have you ever smoked an entire cigarette? }
-  \item{Alcohol}{a factor with levels "Yes" or "No"; H4TO33: Have you had a drink of beer, wine, or liquor more than two or three times? Do not include sips or tastes from someone else’s drink.}
-  \item{Drug}{a factor with levels "Yes" or "No"; H4TO65E: Have you ever used any of the following drugs? (65E) Other types of illegal drugs, such as LSD, PCP, ecstasy, heroin, or mushrooms; or inhalants. }
-  \item{Marijuana}{a factor with levels "Yes" or "No"; H4TO65B: Have you ever used any of the following drugs? (65B) Marijuana (hash, bhang, ganja) }
-  \item{Cocaine}{a factor with levels "Yes" or "No"; H4TO65C: Have you ever used any of the following drugs? (65C) Cocaine (crack, coca leaves)}
-  \item{Gender}{a factor with levels "M" or "F"}
-  \item{Edu}{an integer vector from 1 to 8. It refers to the education level.}
+  \item{AID}{A numeric vector of observations' ID.}
+  \item{Smoking}{A factor with levels "Yes" or "No"; Have you ever smoked an entire cigarette? }
+  \item{Alcohol}{A factor with levels "Yes" or "No";Have you had a drink of beer, wine, or liquor more than two or three times? Do not include sips or tastes from someone else’s drink.}
+  \item{Drug}{A factor with levels "Yes" or "No"; Have you ever used any of the following drugs? Other types of illegal drugs, such as LSD, PCP, ecstasy, heroin, or mushrooms; or inhalants. }
+  \item{Marijuana}{A factor with levels "Yes" or "No"; Have you ever used any of the following drugs? Marijuana (hash, bhang, ganja) }
+  \item{Cocaine}{A factor with levels "Yes" or "No"; Have you ever used any of the following drugs? Cocaine (crack, coca leaves)}
+  \item{Gender}{A factor with levels "M" or "F"}
+  \item{Edu}{An integer vector from 1 to 8. It refers to the education level.}
 }
 }
 \source{
@@ -24,10 +24,10 @@ A data frame with 5114 observations on the following 6 variables.
 data(AddHealth)
 }
 \description{
-Add Health data about substance use and abuse
+Add Health data about substance use
 }
 \details{
-This AddHealth data consist of 5,144 participants' responses with a randomly generated ID variable and five item variables, such as Smoking, Alcohol, Other Types of Illegal Drug, Marijuana, and Cocaine. The responses of the five items are dichotomous as either ``Yes'' or ``No'' and are treated the other missing codes as systematic missing. This data can be obtained from the National Longitudinal Study of Adolescent to Adult Health (Add Health; Harris et al., 2009) where the study has mainly focused on the investigation of how health factors in childhood affect adult outcomes. In terms of data collection, there have been four additional waves since 1994. In this package, the data of a specific section of substance use at the wave IV is pre-installed.
+This AddHealth data consist of 5,144 participants' responses with a randomly generated ID variable and five item variables, such as Smoking, Alcohol, Other Types of Illegal Drug, Marijuana, and Cocaine. The responses of the five items are dichotomous as either "Yes" or "No" and are treated the other missing codes as systematic missing. Along with the dichotomous responses, participants' gender and education level are also included in the sample data. This data can be obtained from the National Longitudinal Study of Adolescent to Adult Health (Add Health; Harris et al., 2009) where the study has mainly focused on the investigation of how health factors in childhood affect adult outcomes. In terms of data collection, there have been four additional waves since 1994. In this package, the data of a specific section of substance use at the wave IV is pre-installed.
 }
 \examples{
 data(AddHealth)
