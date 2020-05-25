@@ -7,7 +7,7 @@
 
 0 errors | 0 warnings | 2 note
 
-* This is a updated version. The previous version was 0.0.1 and the current version is 0.0.3.
+* This is a updated version. The previous version was 0.0.2 and the current version is 0.0.3.
 
 * The current version includes a couple of more function and typos are corrected (05/24/20)  
 

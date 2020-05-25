@@ -24,4 +24,3 @@ Suggests:
     knitr,
     rmarkdown
 RoxygenNote: 7.1.0
-VignetteBuilder: knitr
