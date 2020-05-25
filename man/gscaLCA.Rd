@@ -53,8 +53,7 @@ R3 = gscaLCA (dat = AH.sample,
                ID.var = "AID",
                num.cluster = 3,
                num.factor = "EACH",
-               Boot.num = 0,
-               multiple.Core = F)
+               Boot.num = 0)
 summary(R3)
 R3$model.fit      # Model fit
 R3$LCprevalence   # Latent Class Prevalence

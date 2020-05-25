@@ -1,23 +1,20 @@
 ## Test environments
-* local OS X install, R 3.6.1
-* ubuntu 14.04 (on travis-ci), R 3.6.1
-* win-builder (devel and release)
+* local R installation, R 4.0.0
+* ubuntu 16.04 (on travis-ci), R 4.0.0
+* win-builder (devel)
 
 ## R CMD check results
 
 0 errors | 0 warnings | 1 note
 
-* We received feedback on our R package version 0.0.1. After revise, we resubmit it as version 0.0.2
+* This is a updated version. The previous version was 0.0.1 and the current version is 0.0.3.
 
-* Win-builder generated 1 NOTE: * possibly misspelled words in DESCRIPTION, but the spelling is correct.
+* The current version includes a couple of more function and typos are corrected (05/24/20)  
+
+* Win-builder generated 1 NOTE: possibly misspelled words in DESCRIPTION, but the spelling is correct.
 
 * The 'doSNOW' package cannot be replaced with other packages in order to show the progress bar with multiple core running. 
 
 * The examples in this package use a single core. According to preference by users, multiple cores can be used. 
 
-* This package provides both an object of information and printed output in console.
-We think that printing out the output in the console is crucial, and it will be convenient for users.
 
-* Title has 63 characters. 
-
-* 10/09/2019 Typos are corrected. 

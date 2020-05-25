@@ -31,7 +31,7 @@ test_multinomial = function(dat, covnames, membership.1 , num.cluster, ref.clsut
 
   }else {
 
-    wt = apply(U.cov[,grep("Clus", names(U.cov))], 1, function(x) x[which.max(x)])
+    wt = apply(U.cov[,grep("Class", names(U.cov))], 1, function(x) x[which.max(x)])
 
     test.lm <- nnet::multinom(formula.lm, data = U.cov, weights = wt,
                                 trace = FALSE)

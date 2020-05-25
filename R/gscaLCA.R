@@ -42,8 +42,7 @@
 #'                ID.var = "AID",
 #'                num.cluster = 3,
 #'                num.factor = "EACH",
-#'                Boot.num = 0,
-#'                multiple.Core = F)
+#'                Boot.num = 0)
 #' summary(R3)
 #' R3$model.fit      # Model fit
 #' R3$LCprevalence   # Latent Class Prevalence
@@ -305,6 +304,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
 
 
   if (Boot.num > 0){
+
     Boot.Gen = function(z0){
       z0[sample(1:nrow(z0),replace = TRUE),]
     }
@@ -378,9 +378,9 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
        pb$tick()
        Sys.sleep(1 /(Boot.num) )
 
-     }
+     }# b in 1:Boot.num
 
-   }
+   }# multiple core or not
 
   }else{
 
@@ -390,7 +390,9 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
     model.fit[[1]]= model.fit.1
     LCprevalence[[1]]= LCprevalence.1
     RespProb[[1]]= RespProb.1
-  }
+  } # Boot.num > 0
+
+  names(membership.1)[1:num.cluster] = paste0("Class", 1:num.cluster)
 
 
   if(all(unlist(lapply(model.fit, is.null)))|

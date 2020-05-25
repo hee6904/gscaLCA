@@ -20,7 +20,7 @@ Results of the gscaLCR, fitting regression after partioning in addtion to gscaLC
 The 2nd and 3rd step of gscaLCA, which are the partitioning and fitting regression in the latent class regression.
 }
 \examples{
-R2 = gscaLCA (dat = AddHealth[1:500, ],
+R2 = gscaLCA (dat = AddHealth[1:500, ], # Data has to include the possible covarite to run gscaLCR
                varnames = names(AddHealth)[2:6],
                ID.var = "AID",
                num.cluster = 3,

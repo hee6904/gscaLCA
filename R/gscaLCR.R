@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-#' R2 = gscaLCA (dat = AddHealth[1:500, ],
+#' R2 = gscaLCA (dat = AddHealth[1:500, ], # Data has to include the possible covarite to run gscaLCR
 #'                varnames = names(AddHealth)[2:6],
 #'                ID.var = "AID",
 #'                num.cluster = 3,
