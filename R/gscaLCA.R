@@ -5,15 +5,15 @@
 #' @param dat         Data that you want to fit the gscaLCA function into.
 #' @param varnames    A character vector. The names of columns to be used in the gscaLCA function.
 #' @param ID.var      A character element. The name of ID variable. If ID variable is not specified, the gscaLCA function will search an ID variable in the given data. The ID of observations will be automatically generated as a numeric variable if the data set does not include any ID variable. The default is NULL.
-#' @param num.cluster A numeric element. The number of clusters to be identified The default is 2.
+#' @param num.class A numeric element. The number of classes to be identified The default is 2.
 #' @param num.factor  Either "EACH" or "ALLin1"."EACH" specifies the sitatuion that each indicator is assumed to be its phantom latent variable. "ALLin1" indicates that all variables are assumed to be explained by a common latent variable. The default is "EACH".
 #' @param Boot.num    The number of bootstraps. The standard errors of parameters are computed from the bootstrap within the gscaLCA algorithm. The default is 20.
 #' @param multiple.Core A logical element. TRUE enables to use multiple cores for the bootstrap wehn they are available. The default is \code{FASLE}.
 #' @param covnames    A character vector of covariates. The covariates are used when latent class regression (LCR) is fitted.
 #' @param cov.model   A numeric vector. The indicator function of latent class regression (LCR) that covariates are involved in fitting the fuzzy clustering GSCA. 1 if gscaLCA is for LCR and otherwise 0.
-#' @param multinomial.test.ref A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.
+#' @param multinomial.ref A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.
 #'
-#' @return A list of the sample size (N), the number of cluster (C), the number of bootstraps (Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespProb), the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
+#' @return A list of the sample size (N), the number of cluster (C), the number of bootstraps (Boot.num/Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespProb), the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot). When it include covariates, the regression results are also provided.
 #'
 #' @import parallel
 #' @import devtools
@@ -40,7 +40,7 @@
 #' R3 = gscaLCA (dat = AH.sample,
 #'                varnames = names(AddHealth)[2:6],
 #'                ID.var = "AID",
-#'                num.cluster = 3,
+#'                num.class = 3,
 #'                num.factor = "EACH",
 #'                Boot.num = 0)
 #' summary(R3)
@@ -53,29 +53,29 @@
 #' R3_2C = gscaLCA (dat = AH.sample,
 #'                  varnames = names(AddHealth)[2:6],
 #'                  ID.var = "AID",
-#'                  num.cluster = 3,
+#'                  num.class = 3,
 #'                  num.factor = "EACH",
 #'                  Boot.num = 0,
 #'                  multiple.Core = FALSE,
 #'                  covnames = names(AddHealth)[7:8], # Gender and Edu
-#'                  cov.model = c(1, 0),              # Only Gender varaible is added to the gscaLCR.
-#'                  multinomial.test.ref = "MAX")
+#'                  cov.model = c(1, 0),   # Only Gender varaible is added to the gscaLCR.
+#'                  multinomial.ref = "MAX")
 #'
 #' # To print with the results of multinomial regression with hard partitioning of the gscaLCR,
 #' # use the option of "multinomial.hard".
-#' # summary(R3_2C, "multinomial.hard")
+#' summary(R3_2C, "multinomial.hard")
 #'
 #' \donttest{
 #' # AddHealth data with 2 clusters with 20 bootstraps
 #' R2 = gscaLCA(AddHealth,
 #'              varnames = names(AddHealth)[2:6],
-#'              num.cluster = 2,
+#'              num.class = 2,
 #'              Boot.num = 20,
 #'              multiple.Core = FALSE) # "multiple.Core = TRUE" is recommended.
 #' # TALIS data with 3 clusters with 20 bootstraps and the "ALLin1" option
 #' T3 = gscaLCA(TALIS,
 #'              varnames = names(TALIS)[2:6],
-#'              num.cluster = 3,
+#'              num.class = 3,
 #'              num.factor = "ALLin1",
 #'              Boot.num = 20,
 #'              multiple.Core = FALSE) # "multiple.Core = TRUE" is recommended.
@@ -84,18 +84,20 @@
 #'
 #' @references Ryoo, J. H., Park, S., & Kim, S. (2019). Categorical latent variable modeling utilizing fuzzy clustering generalized structured component analysis as an alternative to latent class analysis. Behaviormetrika, 47, 291-306. https://doi.org/10.1007/s41237-019-00084-6
 #'
-gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
+gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
                     num.factor = "EACH", Boot.num = 20, multiple.Core = FALSE,
-                    covnames = NULL, cov.model = NULL, multinomial.test.ref = "MAX")
+                    covnames = NULL, cov.model = NULL, multinomial.ref = "MAX")
 {
+  num.cluster = num.class
 
   if(is.null(varnames)) stop ("Variable names for analysis are not specified.")
   if(length(intersect(varnames, names(dat)))!=length(varnames)) stop ("Variable names for analysis are not in the data set")
   if(!is.null(covnames)){
     if(length(intersect(varnames, names(dat)))!=length(varnames)) stop ("Covariates names for analysis are not in the data set")
+    if(length(grep("Class", covnames)) != 0) stop ("Please change covariates names which do not including \"Class\".")
   }
 
-  if(is.null(num.cluster)) stop ("The number of cluster is not specified.")
+  if(is.null(num.cluster)) stop ("The number of class is not specified.")
   if(!(num.factor =="EACH" | num.factor =="ALLin1")) stop ("Please check the option `num.factor`")
   if(!is.null(covnames)){
     if(length(covnames) != length(cov.model)) stop ("Please check the objects covnames and cov.model")
@@ -179,7 +181,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
                                    labels= letters[1:length(levels(as.factor(Z00[,j])))])) }
   }
 
-
+  names(LEVELs) = varnames
 
 
   z0 = data.frame(Z00)
@@ -302,6 +304,22 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
   B.mat = EST$B.mat
   W.mat = EST$W.mat
 
+  names(A.mat) = paste0("Class", 1:num.cluster)
+  names(B.mat) = paste0("Class", 1:num.cluster)
+  names(W.mat) = paste0("Class", 1:num.cluster)
+
+  if(length(which(LCprevalence.1[, "Count"]==0))>0){
+    if(Boot.num != 0 & nCOV != 0){
+      print("The estimated number of classes is not consistent with the assigned number of classes; thus, the bootstrap for SE and the fitting a regression model are not implemented.")
+      Boot.num = 0
+    }else if(Boot.num == 0 & nCOV != 0){
+      print("The estimated number of classes is not consistent with the assigned number of classes; thus, the fitting a regression model is not implemented.")
+    }else if(Boot.num != 0 & nCOV == 0){
+      print("The estimated number of classes is not consistent with the assigned number of classes; thus, the bootstrap for SE is not implemented.")
+      Boot.num = 0
+    }
+
+  }
 
   if (Boot.num > 0){
 
@@ -403,10 +421,14 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
     RespProb[[1]]= RespProb.1
   }
 
-  if(nCOV > 0 & length(unique(membership.1$label)) > 1){
+  # if(nCOV > 0 & length(unique(membership.1$label)) != num.cluster){
+  #   print("The estimated number of classes is not consistent with the assigned number of classes, thus the fitting a regression model is not implemented.")
+  # }
+
+  if(nCOV > 0 & length(unique(membership.1$label)) == num.cluster){
 
     ## hard ##
-      multinom_result.hard = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.test.ref,
+      multinom_result.hard = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.ref,
                                         partition = "hard")
       cov_results.multi.hard = multinom_result.hard$test_results
       cov_results_raw.multi.hard =multinom_result.hard$multinom_raw
@@ -417,7 +439,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
       cov_results_raw.bin.hard = binom_result.hard$binomial_raw
 
     ## soft ##
-      multinom_result.soft = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.test.ref,
+      multinom_result.soft = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.ref,
                                               partition = "soft")
       cov_results.multi.soft = multinom_result.soft$test_results
       cov_results_raw.multi.soft = multinom_result.soft$multinom_raw
@@ -464,7 +486,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
 
   RespProb.results <- RespProb.1
 
-  if(all(unlist(lapply(RespProb, function(x){nrow(x[[1]])}))!=nrow(RespProb.1[[1]]))) stop("An optimalized solution cannot be found; it maybe due to different numbers of classes over bootstrap.")
+#  if(all(unlist(lapply(RespProb, function(x){nrow(x[[1]])}))!=nrow(RespProb.1[[1]]))) stop("An optimalized solution cannot be found; it maybe due to different numbers of classes over bootstrap.")
 
   RespProb[[Boot.num+1]]=RespProb.1
   RespProb.mat <- matrix( unlist(lapply(RespProb, function(x){
@@ -571,9 +593,10 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
 
   Boot.num.im = Boot.num - sum(unlist(lapply(model.fit, function(x){is.null(x)})))
 
-  if(nCOV > 0 & length(unique(membership.1$label)) > 1){
+  if(nCOV > 0 & length(unique(membership.1$label)) == num.cluster){
     RESULT <- list( N = nobs, N.origin = nobs.origin, LEVELs = LEVELs, all.Levels.equal = all.Levels.equal,
-                    num.cluster = num.cluster,
+                    num.class = num.cluster,
+                    Boot.num = Boot.num,
                     Boot.num.im = Boot.num.im,
                     model.fit = model.fit.result,
                     LCprevalence = LCprevalence.result,
@@ -604,7 +627,8 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.cluster = 2,
 
   }else{
     RESULT <- list( N = nobs, N.origin = nobs.origin, LEVELs = LEVELs, all.Levels.equal = all.Levels.equal,
-                    num.cluster = num.cluster,
+                    num.class = num.cluster,
+                    Boot.num = Boot.num,
                     Boot.num.im = Boot.num.im,
                     model.fit = model.fit.result,
                     LCprevalence = LCprevalence.result,

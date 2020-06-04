@@ -3,7 +3,7 @@
 #'
 #' @param results.obj the results of gscaLCA.
 #' @param covnames A character vector of covariates. The covariates are used when latent class regression (LCR) is fitted.
-#' @param multinomial.test.ref A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.
+#' @param multinomial.ref A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.
 #'
 #' @return Results of the gscaLCR, fitting regression after partioning in addtion to gscaLCA results.
 #' @export
@@ -23,15 +23,15 @@
 #' summary(R2.gender,  "binomial.hard")    # hard partitioning with binomial regression
 #' summary(R2.gender,  "binomial.soft")    # soft partitioning with binomial regression
 #'
-gscaLCR = function(results.obj, covnames, multinomial.test.ref = "MAX")
+gscaLCR = function(results.obj, covnames, multinomial.ref = "MAX")
 {
-
-
   dat.cov = results.obj$used.dat
   membership.1 = results.obj$membership
-  num.cluster = results.obj$num.cluster
+  num.cluster = results.obj$num.class
   COVNAMES = covnames
   if(!all(COVNAMES %in% names(dat.cov)))stop("Please check the data has the covariates that you assign")
+  if(length(grep("Class", covnames)) != 0) stop ("Please change covariates names which do not including \"Class\".")
+
   # if(all(COVNAMES %in% names(used.dat))){
   #   dat.cov = used.dat
   # }else{
@@ -57,7 +57,7 @@ gscaLCR = function(results.obj, covnames, multinomial.test.ref = "MAX")
 
 
   ## hard ##
-  multinom_result.hard = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.test.ref,
+  multinom_result.hard = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.ref,
                                           partition = "hard")
   cov_results.multi.hard = multinom_result.hard$test_results
   cov_results_raw.multi.hard =multinom_result.hard$multinom_raw
@@ -68,7 +68,7 @@ gscaLCR = function(results.obj, covnames, multinomial.test.ref = "MAX")
   cov_results_raw.bin.hard = binom_result.hard$binomial_raw
 
   ## soft ##
-  multinom_result.soft = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.test.ref,
+  multinom_result.soft = test_multinomial(dat.cov, COVNAMES, membership.1, num.cluster, multinomial.ref,
                                           partition = "soft")
   cov_results.multi.soft = multinom_result.soft$test_results
   cov_results_raw.multi.soft = multinom_result.soft$multinom_raw
@@ -82,7 +82,8 @@ gscaLCR = function(results.obj, covnames, multinomial.test.ref = "MAX")
   RESULT = list(    N = results.obj$N, N.origin = results.obj$N.origin,
                     LEVELs = results.obj$LEVELs,
                     all.Levels.equal = results.obj$all.Levels.equal,
-                    num.cluster = results.obj$num.cluster,
+                    num.class = results.obj$num.class,
+                    Boot.num = results.obj$Boot.num,
                     Boot.num.im = results.obj$Boot.num.im,
                     model.fit = results.obj$model.fit,
                     LCprevalence = results.obj$LCprevalence,

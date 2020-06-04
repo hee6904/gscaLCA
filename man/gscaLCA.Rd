@@ -8,13 +8,13 @@ gscaLCA(
   dat,
   varnames = NULL,
   ID.var = NULL,
-  num.cluster = 2,
+  num.class = 2,
   num.factor = "EACH",
   Boot.num = 20,
   multiple.Core = FALSE,
   covnames = NULL,
   cov.model = NULL,
-  multinomial.test.ref = "MAX"
+  multinomial.ref = "MAX"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ gscaLCA(
 
 \item{ID.var}{A character element. The name of ID variable. If ID variable is not specified, the gscaLCA function will search an ID variable in the given data. The ID of observations will be automatically generated as a numeric variable if the data set does not include any ID variable. The default is NULL.}
 
-\item{num.cluster}{A numeric element. The number of clusters to be identified The default is 2.}
+\item{num.class}{A numeric element. The number of classes to be identified The default is 2.}
 
 \item{num.factor}{Either "EACH" or "ALLin1"."EACH" specifies the sitatuion that each indicator is assumed to be its phantom latent variable. "ALLin1" indicates that all variables are assumed to be explained by a common latent variable. The default is "EACH".}
 
@@ -36,10 +36,10 @@ gscaLCA(
 
 \item{cov.model}{A numeric vector. The indicator function of latent class regression (LCR) that covariates are involved in fitting the fuzzy clustering GSCA. 1 if gscaLCA is for LCR and otherwise 0.}
 
-\item{multinomial.test.ref}{A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.}
+\item{multinomial.ref}{A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.}
 }
 \value{
-A list of the sample size (N), the number of cluster (C), the number of bootstraps (Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespProb), the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot).
+A list of the sample size (N), the number of cluster (C), the number of bootstraps (Boot.num/Boot.num.im), the model fit indices (model.fit), the latent class prevalence (LCprevalence), the item response probability (RespProb), the posterior membership & the predicted class membership (membership), and the graphs of item response probability (plot). When it include covariates, the regression results are also provided.
 }
 \description{
 Fitting a component-based LCA by utilizing fuzzy clustering GSCA algorithm.
@@ -51,7 +51,7 @@ AH.sample= AddHealth[1:500,]
 R3 = gscaLCA (dat = AH.sample,
                varnames = names(AddHealth)[2:6],
                ID.var = "AID",
-               num.cluster = 3,
+               num.class = 3,
                num.factor = "EACH",
                Boot.num = 0)
 summary(R3)
@@ -64,29 +64,29 @@ head(R3$membership)     # Membership for all observations
 R3_2C = gscaLCA (dat = AH.sample,
                  varnames = names(AddHealth)[2:6],
                  ID.var = "AID",
-                 num.cluster = 3,
+                 num.class = 3,
                  num.factor = "EACH",
                  Boot.num = 0,
                  multiple.Core = FALSE,
                  covnames = names(AddHealth)[7:8], # Gender and Edu
-                 cov.model = c(1, 0),              # Only Gender varaible is added to the gscaLCR.
-                 multinomial.test.ref = "MAX")
+                 cov.model = c(1, 0),   # Only Gender varaible is added to the gscaLCR.
+                 multinomial.ref = "MAX")
 
 # To print with the results of multinomial regression with hard partitioning of the gscaLCR,
 # use the option of "multinomial.hard".
-# summary(R3_2C, "multinomial.hard")
+summary(R3_2C, "multinomial.hard")
 
 \donttest{
 # AddHealth data with 2 clusters with 20 bootstraps
 R2 = gscaLCA(AddHealth,
              varnames = names(AddHealth)[2:6],
-             num.cluster = 2,
+             num.class = 2,
              Boot.num = 20,
              multiple.Core = FALSE) # "multiple.Core = TRUE" is recommended.
 # TALIS data with 3 clusters with 20 bootstraps and the "ALLin1" option
 T3 = gscaLCA(TALIS,
              varnames = names(TALIS)[2:6],
-             num.cluster = 3,
+             num.class = 3,
              num.factor = "ALLin1",
              Boot.num = 20,
              multiple.Core = FALSE) # "multiple.Core = TRUE" is recommended.
