@@ -4,14 +4,14 @@
 \alias{gscaLCR}
 \title{The 2nd and 3rd step of gscaLCA, which are the partitioning and fitting regression}
 \usage{
-gscaLCR(results.obj, covnames, multinomial.test.ref = "MAX")
+gscaLCR(results.obj, covnames, multinomial.ref = "MAX")
 }
 \arguments{
 \item{results.obj}{the results of gscaLCA.}
 
 \item{covnames}{A character vector of covariates. The covariates are used when latent class regression (LCR) is fitted.}
 
-\item{multinomial.test.ref}{A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.}
+\item{multinomial.ref}{A character element. Options of \code{MAX}, \code{MIX}, \code{FIRST}, and \code{LAST} are available for setting a reference group. The default is \code{MAX}.}
 }
 \value{
 Results of the gscaLCR, fitting regression after partioning in addtion to gscaLCA results.

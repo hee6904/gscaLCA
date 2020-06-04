@@ -14,7 +14,7 @@ summary.gscaLCA = function(object, print.cov.output = NULL, ...)
   if(class(object) !="gscaLCA") stop ("The object is not from gscaLCA")
 
   if(is.null(print.cov.output)){
-    print_gscaLCA(object$num.cluster,object$N, object$N.origin, object$Boot.num,
+    print_gscaLCA(object$num.class,object$N, object$N.origin, object$Boot.num,
                   object$Boot.num.im,
                   object$model.fit,
                   object$LCprevalence,
@@ -25,7 +25,7 @@ summary.gscaLCA = function(object, print.cov.output = NULL, ...)
                   cov_results.bin.soft = NULL,
                   print.cov.output = NULL)
   }else{
-    print_gscaLCA(object$num.cluster,object$N, object$N.origin, object$Boot.num,
+    print_gscaLCA(object$num.class,object$N, object$N.origin, object$Boot.num,
                   object$Boot.num.im,
                   object$model.fit,
                   object$LCprevalence,
