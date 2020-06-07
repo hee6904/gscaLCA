@@ -3,7 +3,6 @@ Type: Package
 Title: Generalized Structure Component Analysis- Latent Class Analysis & Latent Class Regression
 Version: 0.0.5
 
->>>>>>> eef71d978c2a0a605e46f0b5c510b8af4cdab15f
 Authors@R: c(
               person("Jihoon", "Ryoo",
                   role = c("aut")),
