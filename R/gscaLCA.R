@@ -651,7 +651,6 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
 
   class(RESULT) <- 'gscaLCA'
   #RESULT$call <- match.call()
-
   return(RESULT)
 
 }
