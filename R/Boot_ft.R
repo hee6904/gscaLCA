@@ -1,6 +1,6 @@
 
 Boot_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                   MS,z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,W0,vb,alpha,A0)
+                   MS,z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,W0,vb,alpha,A0, num.factor, nInd)
 {
 
   model.fit.b= NULL
@@ -44,7 +44,8 @@ Boot_ft = function(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespPro
 
 
   ##############
-  AL_gscaLCA = al_gscaLCA(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha,A0)
+  AL_gscaLCA = al_gscaLCA(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha,A0,
+                          num.factor, nInd)
   U = AL_gscaLCA$U
   bi = AL_gscaLCA$bi
   f1 = AL_gscaLCA$f1

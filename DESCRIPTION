@@ -2,6 +2,7 @@ Package: gscaLCA
 Type: Package
 Title: Generalized Structure Component Analysis- Latent Class Analysis & Latent Class Regression
 Version: 0.0.5
+
 Authors@R: c(
               person("Jihoon", "Ryoo",
                   role = c("aut")),

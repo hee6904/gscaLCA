@@ -35,8 +35,10 @@ print_gscaLCA = function(c, nobs, nobs.origin, Boot.num, Boot.num.im, model.fit.
                                   x[,1:3] }))
 
   if(!is.null(print.cov.output) & !is.null(cov_results.multi.hard)){
-    cat("Relationship Between Prevalances and Covariates -------\n ")
+    cat("Relationship Between Prevalence and Covariates -------\n ")
 
+    if(!(print.cov.output %in% c("multinomial.hard", "binomial.hard",
+                                 "multinomial.soft", "binomial.soft"))) stop ("Please put an option among \"multinomial.hard\", \"binomial.hard\", \"multinomial.soft\", and \"binomial.soft\".")
     if(print.cov.output == "multinomial.hard"){
     cat("Multinomial logistic regression is applied with hard partitioning \n ")
       cov_results.print = lapply(cov_results.multi.hard, function(y)

@@ -23,7 +23,7 @@ The 2nd and 3rd step of gscaLCA, which are the partitioning and fitting regressi
 R2 = gscaLCA (dat = AddHealth[1:500, ], # Data has to include the possible covarite to run gscaLCR
                varnames = names(AddHealth)[2:6],
                ID.var = "AID",
-               num.cluster = 3,
+               num.class = 3,
                num.factor = "EACH",
                Boot.num = 0,
                multiple.Core = F)

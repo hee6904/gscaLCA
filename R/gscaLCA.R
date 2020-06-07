@@ -261,7 +261,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
 
   A0 <- t(W0)
 
-  nobs<- nrow(z0);  nvar <- ncol(z0)     # NOBS = NUM OF OBSERVATIONS, NVAR = NUM OF MANIFESTS
+  nobs <- nrow(z0);  nvar <- ncol(z0)     # NOBS = NUM OF OBSERVATIONS, NVAR = NUM OF MANIFESTS
   nlv <- length(loadtype)                 # NUM OF LATENTS
   ntv <- nvar + nlv                       # NUM OF MANIFESTS AND LATENTS
 
@@ -293,7 +293,8 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
 
 
   EST = EST_ft(T0, nzt, vect0, ID, LEVELs, loadtype,
-               MS, z0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha, varnames, A0)
+               MS, z0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha, varnames, A0,
+               num.factor, nInd)
   model.fit.1    = EST$model.fit.1
   LCprevalence.1 = EST$LCprevalence.1
   RespProb.1     = EST$RespProb.1
@@ -367,7 +368,8 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
 
      BOOT.result <-
        foreach(i=1:Boot.num, .options.snow = opts) %dopar% Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                                                                   MS, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha,A0)
+                                                                   MS, z0, BZ0[[i]], c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha,A0,
+                                                                   num.factor, nInd)
 
      stopCluster(cl)
 
@@ -386,7 +388,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
        bz0 = Boot.Gen(z0)
 
        BOOT.result = Boot_ft(T0, nzt, vect0, ID, LEVELs, loadtype, LCprevalence.1, RespProb.1, varnames,
-                   MS, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha, A0)
+                   MS, z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const, W0,vb, alpha, A0, num.factor, nInd)
 
 
        model.fit[[b]] =  BOOT.result$model.fit.b

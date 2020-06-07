@@ -1,10 +1,13 @@
-al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T.mat,vb,alpha, A0= NULL){
+al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv, nlv, nzct, const,V, W,W0, T.mat,vb,alpha, A0= NULL,
+                      num.factor, nInd){
+
+
   ## MS=1 (mean structure); MS=0 (no mean structure)
   if (MS == 1){
     Z <- bz0
   }else{
 
-    Z = apply(bz0, 2, function(x)scale(x)*sqrt(length(x))/sqrt(length(x)-1))
+    Z = apply(bz0, 2, function(x) scale(x)*sqrt(length(x))/sqrt(length(x)-1))
   }
 
 
@@ -163,17 +166,38 @@ al_gscaLCA = function(MS,z0, bz0, c, nobs, nvar, ntv,nlv, nzct, const,V, W,W0, T
         Psi_c <- Z_c %*% V[[k]]
         Gamma_c <- Z_c %*% W[[k]]
 
-        dif <- Z %*% V[[k]]-  Z%*% W[[k]]%*%T.mat[[k]]  # Z was used in matlab code; Z_c was not work well
+        dif <- Z %*% V[[k]]-  Z %*% W[[k]] %*% T.mat[[k]]  # Z was used in matlab code; Z_c was not work well
         obj_func <- Psi_c - Gamma_c %*% T.mat[[k]]
 
         f1 <- f1 + sum(diag((t(obj_func)%*%obj_func)))
         f2 <- f2 + sum(diag((t(Psi_c)%*%Psi_c)))
 
-        M <- cbind(M, rowSums(dif^2))
+        #
 
-        bi0 <- V[[k]] - W[[k]]%*%T.mat[[k]]
+        bi0 <- V[[k]] - W[[k]] %*% T.mat[[k]]
         bi[,k] <- as.vector(bi0)
         bi[,k] <- bi[,k]/norm( bi[,k], type="2") ## why type 2?
+
+
+        # without covariate only endogenous variables
+        if(nInd != nvar){
+          if(num.factor == "EACH"){
+
+            dif.exo <- Z[,1:nInd] %*% V[[k]][c(1:nInd), c(1:nInd, (nvar+1):(nvar+nInd))] -
+              Z[,1:nInd] %*% W[[k]][1:nInd, 1:nInd] %*% T.mat[[k]][c(1:nInd), c(1:nInd, (nvar+1):(nvar+nInd))]
+            M <- cbind(M, rowSums(dif.exo^2))
+
+          }else if(num.factor == "ALLin1"){
+
+            dif.exo <- Z[,1:nInd] %*% V[[k]][c(1:nInd), c(1:nInd, (nvar+1))] -
+              Z[,1:nInd] %*% matrix(W[[k]][(1:nInd),1], ncol = 1) %*% matrix(c(T.mat[[k]][1, c(1:nInd)], 0), nrow= 1)  # without covariate
+            M <- cbind(M, rowSums(dif.exo^2))
+          }
+        }else{
+          M <- cbind(M, rowSums(dif^2))
+        }
+
+
 
       }# k in 1:c
 
