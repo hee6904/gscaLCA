@@ -7,9 +7,9 @@
 
 0 errors | 0 warnings | 2 note
 
-* This is a updated version. The previous version was 0.0.3 and the current version is 0.1.0.
+* This is a updated version. The previous version was 0.0.3 and the current version is 0.0.5.
 
-* The current version includes a couple of more function and typos are corrected (06/03/20)  
+* The current version covers the possible error while implementing the program (06/08/20)  
 
 * Win-builder generated 2 NOTE: 
   
