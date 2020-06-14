@@ -133,7 +133,7 @@ gscaLCA <- function(dat, varnames = NULL,  ID.var = NULL, num.class = 2,
 
 
   dat.cov = dat
-  return("done")
+  return("Sample Comment")
 
 #   # Variables' location for optimization
 #   # vb = c(which(names(dat) %in% varnames),
